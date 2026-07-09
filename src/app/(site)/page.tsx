@@ -113,11 +113,18 @@ export default async function HomePage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[70%_60%] -z-10"
+          className="object-cover object-[70%_60%] -z-10 brightness-[1.14] contrast-[1.34] saturate-[1.2]"
         />
-        {/* Navy wash: opaque at the left so the headline always has contrast,
-            clearing to the right so the player stays visible. */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand from-25% via-brand/75 via-60% to-transparent" />
+        {/* Navy wash. The source art is a navy duotone, so the image is dark
+            everywhere and white text survives with little or no wash over it.
+            That lets the wash read as a flat navy block on the left that clears
+            entirely well before the player's focal point at 70%, rather than
+            greying him out. The headline glyphs end around 45%.
+
+            Below md the grid is a single column and the text runs the full width,
+            so the wash keeps a floor rather than clearing — the headline needs the
+            backing more than the player needs the light. */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand from-35% via-brand/70 via-70% to-brand/55 md:from-40% md:via-brand/15 md:via-60% md:to-transparent md:to-72%" />
 
         <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-20 lg:px-8">
           {/* Left: kicker + headline */}
