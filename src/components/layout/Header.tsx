@@ -41,9 +41,9 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             {/* The wordmark is dark navy, so it needs a light plate in dark mode. */}
             <Image
-              src="/images/tmltoday-logo.webp"
+              src="/images/tml-logo.webp"
               alt="TMLtoday.com — Leafs News &amp; Views"
-              width={526}
+              width={412}
               height={160}
               priority
               className="h-12 sm:h-20 w-auto dark:bg-white dark:rounded-md dark:px-2 dark:py-1"
