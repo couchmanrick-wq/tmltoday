@@ -32,6 +32,13 @@
 			"service": "tmltoday"
 		}
 	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "tmltoday-content",
+			"database_id": "977372dd-26ec-4ea3-82c1-96862abf61d6"
+		}
+	],
 	"observability": {
 		"enabled": true
 	},

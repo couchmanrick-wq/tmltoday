@@ -1,32 +1,193 @@
-# OpenNext Starter
+# TML Today - Toronto Maple Leafs Aggregator
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Your source for Toronto Maple Leafs news, videos, podcasts, and community discussion. An independent aggregator similar to PWHLdailybuzz.com.
+
+## Features
+
+- **Aggregated Content**: News articles, videos, and podcasts from multiple sources
+- **Trending Players**: Track player mentions and rankings
+- **League Standings**: Real-time standings and statistics
+- **Team Information**: Detailed team and roster information
+- **Division Tracking**: Monitor division rivals and standings
+- **Community Forum**: Integration with external forums
+- **Newsletter**: Daily digest of Leafs news
+- **Responsive Design**: Works great on mobile, tablet, and desktop
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org) with App Router
+- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+- **Language**: [TypeScript](https://www.typescriptlang.org)
+- **Deployment**: [Cloudflare Workers](https://workers.cloudflare.com) via OpenNext
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── content/          # Content aggregation API
+│   ├── (site)/               # Main site routes
+│   │   ├── page.tsx          # Home page
+│   │   ├── videos/           # Videos section
+│   │   ├── podcasts/         # Podcasts section
+│   │   ├── columns/          # Analysis & blogs
+│   │   ├── players/          # Player information
+│   │   ├── teams/            # Team information
+│   │   └── standings/        # League standings
+│   ├── layout.tsx            # Root layout
+│   └── globals.css           # Global styles
+├── components/
+│   ├── layout/               # Header, Footer, Navigation
+│   └── content/              # NewsCard, PlayerCard, etc.
+├── data/
+│   └── teams.ts              # Team and player data
+├── lib/
+│   └── feeds.ts              # Feed aggregation utilities
+└── types/
+    └── index.ts              # TypeScript interfaces
+```
 
 ## Getting Started
 
-Read the documentation at https://opennext.js.org/cloudflare.
+### Prerequisites
 
-## Develop
+- Node.js 18+ 
+- npm or yarn
 
-Run the Next.js development server:
+### Development
 
+1. Install dependencies:
 ```bash
-npm run dev
-# or similar package manager command
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Run the development server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Preview
+The site will auto-reload as you make changes.
 
-Preview the application locally on the Cloudflare runtime:
+### Build
+
+```bash
+npm run build
+npm start
+```
+
+### Preview on Cloudflare
+
+Preview the app on the Cloudflare runtime:
 
 ```bash
 npm run preview
-# or similar package manager command
 ```
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env.local` file with any API keys needed:
+
+```env
+# RSS Feed URLs and API keys (when implementing real feeds)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### Customization
+
+#### Teams & Roster
+Edit [src/data/teams.ts](src/data/teams.ts) to update the Leafs roster and team information.
+
+#### Content Sources
+Update [src/lib/feeds.ts](src/lib/feeds.ts) to add RSS feeds and API integrations for:
+- News articles
+- YouTube videos
+- Podcasts
+- Forum threads
+
+#### Styling
+Customize colors and styles in [tailwind.config.ts](tailwind.config.ts) or update component classes.
+
+## Content Integration
+
+### Adding News Feeds
+
+The project is ready to integrate with:
+- **RSS Feeds**: Sports news websites (TSN, Sportsnet, The Hockey News)
+- **YouTube API**: Official Leafs channel and related content
+- **Podcast Platforms**: Apple Podcasts, Spotify, other podcast APIs
+- **Twitter/X API**: Social media mentions
+- **Forum API**: External community forum
+
+See [src/lib/feeds.ts](src/lib/feeds.ts) for integration points.
+
+## Deployment
+
+### Cloudflare Workers
+
+Deploy to Cloudflare Workers:
+
+```bash
+npm run deploy
+```
+
+Or upload a preview:
+
+```bash
+npm run upload
+```
+
+See [Cloudflare OpenNext Documentation](https://opennext.js.org/cloudflare) for more details.
+
+## Features Roadmap
+
+- [ ] RSS feed aggregation from multiple sources
+- [ ] YouTube integration for video highlights
+- [ ] Podcast feed aggregation
+- [ ] Real-time game updates and scores
+- [ ] User authentication for personalized content
+- [ ] Newsletter subscription backend
+- [ ] Forum integration (linking to external forum)
+- [ ] Social media feed integration
+- [ ] Mobile app (PWA)
+- [ ] Dark mode toggle (already in components)
+- [ ] Search functionality
+- [ ] Advanced filtering and sorting
+
+## API Routes
+
+### GET /api/content
+Fetch aggregated content with filtering.
+
+**Query Parameters:**
+- `type`: Filter by content type (article, video, podcast)
+- `page`: Page number (default: 1)
+- `pageSize`: Items per page (default: 20)
+
+**Example:**
+```bash
+GET /api/content?type=video&page=1&pageSize=10
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is independent and not affiliated with the Toronto Maple Leafs or the NHL.
+
+## Support
+
+For questions or issues, please open an issue on GitHub.
+
+## Disclaimer
+
+This is an independent news aggregator and is not affiliated with the Toronto Maple Leafs, the National Hockey League (NHL), or any of the content sources. All content is aggregated from publicly available sources.
 
 ## Deploy
 
