@@ -141,13 +141,24 @@ export default async function HomePage() {
 
           {/* Right: newsletter card */}
           <div>
-            <div className="rounded-xl border border-white/15 bg-brand/60 p-5 backdrop-blur-sm sm:p-6">
+            {/* The card floats over the cleared part of the hero, so its surface
+                tone follows whatever pixel is behind it. backdrop-brightness does
+                the legibility work — it darkens the artwork uniformly rather than
+                hiding it — which lets the navy fill drop to /30 and show far more
+                of the image than a heavier, flatter fill would. */}
+            <div className="rounded-xl border border-white/20 bg-brand/30 p-5 backdrop-blur-sm backdrop-brightness-[.55] sm:p-6">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
                 ★ Free daily newsletter
               </p>
               <p className="mb-4 text-lg font-bold leading-snug text-white">
                 The most recent Leafs and team updates, in your inbox by{' '}
-                <span className="text-blue-300">7:00 AM EST</span>.
+                {/* The accent is an underline, not the text colour: #9999CC only
+                    reaches 3.2:1 on this translucent card, but a decoration
+                    carries no contrast requirement. */}
+                <span className="underline decoration-blue-300 decoration-2 underline-offset-4">
+                  7:00 AM EST
+                </span>
+                .
               </p>
 
               <form className="flex flex-col gap-2 sm:flex-row">
@@ -169,7 +180,7 @@ export default async function HomePage() {
                 </button>
               </form>
 
-              <p className="mt-3 text-xs text-blue-200">
+              <p className="mt-3 text-xs text-blue-100">
                 One sharp email every morning. Join free — unsubscribe anytime.
               </p>
             </div>
