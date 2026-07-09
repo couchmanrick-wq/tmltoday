@@ -117,30 +117,30 @@ export default async function HomePage() {
         />
         {/* Navy wash: opaque at the left so the headline always has contrast,
             clearing to the right so the player stays visible. */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0e1260] from-25% via-[#161b89]/75 via-60% to-transparent" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand from-25% via-brand/75 via-60% to-transparent" />
 
         <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-20 lg:px-8">
           {/* Left: kicker + headline */}
           <div>
-            <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-sky-400">
-              <span aria-hidden="true" className="h-0.5 w-8 bg-sky-400" />
+            <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
+              <span aria-hidden="true" className="h-0.5 w-8 bg-blue-300" />
               Your complete Maple Leafs coverage
             </p>
             <h1 className="text-4xl font-bold uppercase leading-[1.05] tracking-tight text-white sm:text-5xl">
               <span className="block">Latest team news.</span>
-              <span className="block text-sky-400">Up-to-the-minute.</span>
+              <span className="block text-blue-300">Up-to-the-minute.</span>
             </h1>
           </div>
 
           {/* Right: newsletter card */}
           <div>
-            <div className="rounded-xl border border-white/15 bg-[#161b89]/60 p-5 backdrop-blur-sm sm:p-6">
+            <div className="rounded-xl border border-white/15 bg-brand/60 p-5 backdrop-blur-sm sm:p-6">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
                 ★ Free daily newsletter
               </p>
               <p className="mb-4 text-lg font-bold leading-snug text-white">
                 The most recent Leafs and team updates, in your inbox by{' '}
-                <span className="text-sky-400">7:00 AM EST</span>.
+                <span className="text-blue-300">7:00 AM EST</span>.
               </p>
 
               <form className="flex flex-col gap-2 sm:flex-row">
@@ -152,11 +152,11 @@ export default async function HomePage() {
                   type="email"
                   required
                   placeholder="you@email.com"
-                  className="min-w-0 flex-1 rounded bg-white px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  className="min-w-0 flex-1 rounded bg-white px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded bg-sky-400 px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#161b89] transition-colors hover:bg-sky-300"
+                  className="shrink-0 rounded bg-blue-300 px-5 py-3 text-xs font-bold uppercase tracking-wider text-brand transition-colors hover:bg-blue-200"
                 >
                   Get the 7 AM recap
                 </button>

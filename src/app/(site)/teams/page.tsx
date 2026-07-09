@@ -69,7 +69,7 @@ export default function TeamsPage() {
             </div>
             <Link
               href="/players"
-              className="inline-block px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              className="inline-block px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors"
             >
               View Full Roster →
             </Link>

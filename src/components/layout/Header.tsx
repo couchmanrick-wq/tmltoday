@@ -121,12 +121,14 @@ function NavLink({
   // font-sans covers it. The bottom border is always present but transparent
   // when inactive, so the highlight cannot shift the layout.
   // Both states must name a border-color; listing `border-transparent` in the
-  // shared part would beat `border-sky-400` on stylesheet order, not class order.
+  // shared part would beat `border-blue-600` on stylesheet order, not class order.
+  // The header is white, so the underline uses navy rather than the accent,
+  // which only clears 2.7:1 against white.
   const className = [
     block ? 'block px-3 py-3' : 'px-3 py-2',
     'font-sans text-[15px] font-bold text-brand',
     'border-b-2 transition-colors',
-    active ? 'border-sky-400' : 'border-transparent hover:border-sky-200',
+    active ? 'border-blue-600' : 'border-transparent hover:border-blue-400',
   ].join(' ');
 
   if (item.external) {

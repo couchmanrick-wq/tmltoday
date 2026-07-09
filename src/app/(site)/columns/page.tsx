@@ -93,7 +93,7 @@ export default function ColumnsPage() {
             </div>
             <a
               href={COLUMNS[0].link}
-              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold"
+              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors font-semibold"
             >
               Read More
             </a>

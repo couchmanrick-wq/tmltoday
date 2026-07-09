@@ -11,15 +11,54 @@
 :root {
 	--background: #ffffff;
 	--foreground: #171717;
-	--brand: #161b89;
+	--brand: #000080;
+	--brand-medium: #333399;
+	--brand-light: #6666b3;
+	--brand-accent: #9999cc;
 }
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-brand: var(--brand);
+	--color-brand-medium: var(--brand-medium);
+	--color-brand-light: var(--brand-light);
+	--color-brand-accent: var(--brand-accent);
 	--font-sans: var(--font-roboto);
 	--font-heading: var(--font-montserrat);
+}
+
+/*
+ * Brand palette. Rather than rewrite every blue utility in the markup, we
+ * retarget Tailwind's `blue` ramp onto the four brand colours:
+ *
+ *   blue-600 = #000080  darker  — links, buttons, heading colour
+ *   blue-500 = #333399  medium  — hover state for navy buttons
+ *   blue-400 = #6666b3  lighter — hover borders, muted text on white
+ *   blue-300 = #9999CC  accent  — hero kicker, headline highlight, CTA
+ *
+ * The remaining steps are mixes toward white and black. Two contrast
+ * constraints drive the assignments and are easy to break by accident:
+ *
+ *   1. #9999CC hits 2.7:1 on white, under the 3:1 minimum for UI borders, so
+ *      the accent is only ever used on navy. The header's active underline
+ *      sits on white and therefore uses blue-600.
+ *   2. Navy is near-black, so a darker hover is invisible. Navy buttons hover
+ *      *lighter*, to blue-500; the accent CTA hovers lighter still, to
+ *      blue-200 (navy on blue-400 would fall to 3.14:1).
+ */
+@theme {
+	--color-blue-50: #f0f0f7;
+	--color-blue-100: #d9d9ec;
+	--color-blue-200: #b3b3d9;
+	--color-blue-300: #9999cc;
+	--color-blue-400: #6666b3;
+	--color-blue-500: #333399;
+	--color-blue-600: #000080;
+	--color-blue-700: #000066;
+	--color-blue-800: #00004d;
+	--color-blue-900: #000033;
+	--color-blue-950: #00001f;
 }
 
 body {
