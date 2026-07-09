@@ -9,7 +9,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "tmltoday",
-	"main": ".open-next/worker.js",
+	"main": "worker.js",
 	"compatibility_date": "2026-07-08",
 	"compatibility_flags": [
 		"nodejs_compat",
@@ -39,6 +39,14 @@
 			"database_id": "977372dd-26ec-4ea3-82c1-96862abf61d6"
 		}
 	],
+	"triggers": {
+		"crons": [
+			"*/10 * * * *"
+		]
+	},
+	"vars": {
+		"AGGREGATOR_REFRESH_PATH": "/api/aggregator/refresh"
+	},
 	"observability": {
 		"enabled": true
 	},

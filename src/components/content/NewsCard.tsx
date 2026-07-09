@@ -11,10 +11,8 @@ interface NewsCardProps {
 
 export function NewsCard({ article }: NewsCardProps) {
   return (
-    <a
-      href={article.link}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/story/${article.id}`}
       className="group block p-4 bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
     >
       {/* Image */}
@@ -56,7 +54,7 @@ export function NewsCard({ article }: NewsCardProps) {
         <span className="font-medium">{article.source}</span>
         <span>{formatTimeAgo(article.publishedAt)}</span>
       </div>
-    </a>
+    </Link>
   );
 }
 
@@ -90,11 +88,9 @@ export function NewsList({ articles }: NewsListProps) {
   return (
     <div className="space-y-4">
       {articles.map((article) => (
-        <a
+        <Link
           key={article.id}
-          href={article.link}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/story/${article.id}`}
           className="flex gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-md transition-all"
         >
           {article.image && (
@@ -124,7 +120,7 @@ export function NewsList({ articles }: NewsListProps) {
               <span>{formatTimeAgo(article.publishedAt)}</span>
             </div>
           </div>
-        </a>
+        </Link>
       ))}
     </div>
   );

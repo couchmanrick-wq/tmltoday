@@ -125,6 +125,29 @@ The project is ready to integrate with:
 
 See [src/lib/feeds.ts](src/lib/feeds.ts) for integration points.
 
+### AI Aggregator
+
+The aggregator is implemented as a Cloudflare-friendly pipeline:
+
+- Source catalog: [src/lib/aggregator/sources.ts](src/lib/aggregator/sources.ts)
+- Discovery and scraping: [src/lib/aggregator/scraper.ts](src/lib/aggregator/scraper.ts)
+- Enrichment, duplicate detection, rumour scoring, sentiment, and ranking: [src/lib/aggregator/enrichment.ts](src/lib/aggregator/enrichment.ts)
+- D1 persistence and newsroom feeds: [src/lib/aggregator/db.ts](src/lib/aggregator/db.ts)
+- Manual refresh endpoint: `POST /api/aggregator/refresh`
+- Personalized feed endpoint: `GET /api/feed/personalized?players=Auston%20Matthews&topics=trade`
+
+Apply the D1 schema before deploying:
+
+```bash
+npx wrangler d1 execute tmltoday-content --remote --file migrations/0001_enriched_content.sql
+```
+
+Production refreshes run every 10 minutes through the Cloudflare cron in `wrangler.jsonc`. Set an `AGGREGATOR_SECRET` secret to protect manual refreshes:
+
+```bash
+npx wrangler secret put AGGREGATOR_SECRET
+```
+
 ## Deployment
 
 ### Cloudflare Workers

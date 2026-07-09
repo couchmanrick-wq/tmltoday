@@ -1,5 +1,17 @@
 // Content types
 export type ContentType = 'article' | 'video' | 'podcast' | 'tweet' | 'blog';
+export type Sentiment = 'positive' | 'neutral' | 'negative';
+export type StoryTopic =
+  | 'breaking'
+  | 'game'
+  | 'injury'
+  | 'trade'
+  | 'rumour'
+  | 'analysis'
+  | 'prospects'
+  | 'roster'
+  | 'media'
+  | 'community';
 
 export interface NewsArticle {
   id: string;
@@ -13,6 +25,17 @@ export interface NewsArticle {
   contentType: ContentType;
   category?: string;
   author?: string;
+  aiSummary?: string;
+  keyTakeaways?: string[];
+  players?: string[];
+  coaches?: string[];
+  topic?: StoryTopic;
+  isRumour?: boolean;
+  rumourConfidence?: number;
+  sentiment?: Sentiment;
+  tags?: string[];
+  duplicateOf?: string | null;
+  importance?: number;
 }
 
 export interface ContentFeed {
@@ -21,6 +44,18 @@ export interface ContentFeed {
   page: number;
   pageSize: number;
   hasMore: boolean;
+}
+
+export interface NewsroomFeed {
+  topStory?: NewsArticle;
+  breaking: NewsArticle[];
+  latest: NewsArticle[];
+  trending: NewsArticle[];
+  rumours: NewsArticle[];
+  analysis: NewsArticle[];
+  videos: NewsArticle[];
+  podcasts: NewsArticle[];
+  tweets: NewsArticle[];
 }
 
 // Player types

@@ -48,17 +48,17 @@ export default function Header() {
   return (
     <header className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
+        <div className="flex justify-between items-center h-32 sm:h-40">
           {/* Logo */}
           <Link href="/" className="flex items-center">
             {/* The wordmark is dark navy, so it needs a light plate in dark mode. */}
             <Image
-              src="/images/tml-logo.webp"
-              alt="TMLtoday.com — Leafs News &amp; Views"
-              width={412}
-              height={160}
+              src="/images/logo-horizontal-1.webp"
+              alt="TMLtoday.com - Leafs News and Views"
+              width={640}
+              height={226}
               priority
-              className="h-12 sm:h-20 w-auto dark:bg-white dark:rounded-md dark:px-2 dark:py-1"
+              className="h-24 w-auto sm:h-32 dark:bg-white dark:rounded-md dark:px-2 dark:py-1"
             />
           </Link>
 

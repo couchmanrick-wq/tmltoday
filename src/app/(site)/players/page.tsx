@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { PlayerGrid } from '@/components/content/PlayerCard';
 import { getTrendingPlayers, LEAFS_ROSTER } from '@/data/teams';
 
@@ -40,7 +41,11 @@ export default function PlayersPage() {
               {LEAFS_ROSTER.map((player) => (
                 <tr key={player.id} className="hover:bg-slate-50 dark:hover:bg-slate-700">
                   <td className="px-4 py-3 font-bold">{player.number}</td>
-                  <td className="px-4 py-3 font-semibold">{player.name}</td>
+                  <td className="px-4 py-3 font-semibold">
+                    <Link href={`/players/${player.id}`} className="hover:text-blue-600">
+                      {player.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3">{player.position}</td>
                   <td className="px-4 py-3 hidden sm:table-cell text-sm">{player.height}</td>
                   <td className="px-4 py-3 hidden sm:table-cell text-sm">{player.weight}</td>
