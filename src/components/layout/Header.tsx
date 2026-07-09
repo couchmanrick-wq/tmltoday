@@ -117,13 +117,16 @@ function NavLink({
   block?: boolean;
   onNavigate?: () => void;
 }) {
-  // Menu type: Roboto 700 15px. Roboto is the body font, so font-sans covers it.
+  // Menu type: Roboto 700 15px, brand navy. Roboto is the body font, so
+  // font-sans covers it. The bottom border is always present but transparent
+  // when inactive, so the highlight cannot shift the layout.
+  // Both states must name a border-color; listing `border-transparent` in the
+  // shared part would beat `border-sky-400` on stylesheet order, not class order.
   const className = [
     block ? 'block px-3 py-3' : 'px-3 py-2',
-    'font-sans text-[15px] font-bold rounded-md transition-colors',
-    active
-      ? 'bg-slate-100 dark:bg-slate-800 text-blue-600'
-      : 'hover:bg-slate-100 dark:hover:bg-slate-800',
+    'font-sans text-[15px] font-bold text-brand',
+    'border-b-2 transition-colors',
+    active ? 'border-sky-400' : 'border-transparent hover:border-sky-200',
   ].join(' ');
 
   if (item.external) {

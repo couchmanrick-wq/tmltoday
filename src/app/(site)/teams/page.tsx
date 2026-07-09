@@ -46,7 +46,7 @@ export default function TeamsPage() {
         <h2 className="text-2xl font-bold mb-6">Toronto Maple Leafs</h2>
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8">
-            <h3 className="text-3xl font-bold mb-2">{TORONTO_MAPLE_LEAFS.name}</h3>
+            <h3 className="text-3xl font-bold mb-2 text-white">{TORONTO_MAPLE_LEAFS.name}</h3>
             <p className="text-blue-100">{TORONTO_MAPLE_LEAFS.city}, Ontario</p>
           </div>
           <div className="p-8">

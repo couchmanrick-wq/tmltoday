@@ -101,7 +101,7 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="py-12 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg">
         <div className="max-w-3xl">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">TML Today</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-white">TML Today</h1>
           <p className="text-lg text-blue-100 mb-6">
             Your source for Toronto Maple Leafs news, videos, podcasts, and community discussion.
           </p>

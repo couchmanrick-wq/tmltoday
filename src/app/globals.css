@@ -1,22 +1,25 @@
 @import "tailwindcss";
 
+/*
+ * The site is light-only. By default Tailwind's `dark:` variant tracks
+ * prefers-color-scheme, so pointing it at a `.dark` class that is never
+ * applied makes every existing dark:* utility inert without having to
+ * strip them from the markup.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
 	--background: #ffffff;
 	--foreground: #171717;
+	--brand: #161b89;
 }
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
+	--color-brand: var(--brand);
 	--font-sans: var(--font-roboto);
 	--font-heading: var(--font-montserrat);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
 }
 
 body {
@@ -37,6 +40,11 @@ body {
 		font-weight: 400;
 	}
 
+	/*
+	 * Headings are brand navy by default. This sets `color` explicitly, so
+	 * headings that previously inherited white from a coloured parent need an
+	 * explicit text-* utility to win it back (see the hero h1).
+	 */
 	h1,
 	h2,
 	h3,
@@ -46,5 +54,6 @@ body {
 		font-family: var(--font-montserrat), Arial, Helvetica, sans-serif;
 		font-weight: 700;
 		font-size: 28px;
+		color: var(--brand);
 	}
 }
