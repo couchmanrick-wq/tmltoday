@@ -117,9 +117,10 @@ function NavLink({
   block?: boolean;
   onNavigate?: () => void;
 }) {
+  // Menu type: Roboto 700 13px. Roboto is the body font, so font-sans covers it.
   const className = [
-    block ? 'block px-3 py-2 text-base' : 'px-3 py-2 text-sm',
-    'font-medium rounded-md transition-colors',
+    block ? 'block px-3 py-3' : 'px-3 py-2',
+    'font-sans text-[13px] font-bold rounded-md transition-colors',
     active
       ? 'bg-slate-100 dark:bg-slate-800 text-blue-600'
       : 'hover:bg-slate-100 dark:hover:bg-slate-800',
