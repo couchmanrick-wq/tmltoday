@@ -100,9 +100,11 @@ export default async function HomePage() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
+      {/* Breaks out of the max-w-7xl container in (site)/layout.tsx so the
+          artwork bleeds to both viewport edges. */}
       <section
         id="newsletter"
-        className="relative overflow-hidden rounded-lg scroll-mt-28 isolate"
+        className="relative isolate overflow-hidden scroll-mt-28 mx-[calc(50%-50vw)] w-screen"
       >
         {/* Decorative: the headline carries the meaning, so the image is alt="" */}
         <Image
@@ -117,7 +119,7 @@ export default async function HomePage() {
             clearing to the right so the player stays visible. */}
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0e1260] from-25% via-[#161b89]/75 via-60% to-transparent" />
 
-        <div className="relative grid gap-10 px-6 py-14 sm:px-10 md:grid-cols-2 md:items-center md:gap-12 md:py-20">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-20 lg:px-8">
           {/* Left: kicker + headline */}
           <div>
             <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-sky-400">
@@ -130,13 +132,8 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          {/* Right: blurb + newsletter card */}
-          <div className="space-y-6">
-            <p className="max-w-xl text-base leading-relaxed text-blue-100">
-              The fastest way to follow the Toronto Maple Leafs — news, video, podcasts and
-              scores from across the league, aggregated and summarized.
-            </p>
-
+          {/* Right: newsletter card */}
+          <div>
             <div className="rounded-xl border border-white/15 bg-[#161b89]/60 p-5 backdrop-blur-sm sm:p-6">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
                 ★ Free daily newsletter
