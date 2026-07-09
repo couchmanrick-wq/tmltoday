@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { NewsGrid, NewsList } from '@/components/content/NewsCard';
 import { PlayerGrid } from '@/components/content/PlayerCard';
 import { getTrendingPlayers } from '@/data/teams';
@@ -99,15 +100,76 @@ export default async function HomePage() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-white">TML Today</h1>
-          <p className="text-lg text-blue-100 mb-6">
-            Your source for Toronto Maple Leafs news, videos, podcasts, and community discussion.
-          </p>
-          <button className="px-6 py-3 bg-white text-blue-600 font-semibold rounded hover:bg-slate-100 transition-colors">
-            Subscribe to Newsletter
-          </button>
+      <section
+        id="newsletter"
+        className="relative overflow-hidden rounded-lg scroll-mt-28 isolate"
+      >
+        {/* Decorative: the headline carries the meaning, so the image is alt="" */}
+        <Image
+          src="/images/matthews-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[70%_60%] -z-10"
+        />
+        {/* Navy wash: opaque at the left so the headline always has contrast,
+            clearing to the right so the player stays visible. */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0e1260] from-25% via-[#161b89]/75 via-60% to-transparent" />
+
+        <div className="relative grid gap-10 px-6 py-14 sm:px-10 md:grid-cols-2 md:items-center md:gap-12 md:py-20">
+          {/* Left: kicker + headline */}
+          <div>
+            <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-sky-400">
+              <span aria-hidden="true" className="h-0.5 w-8 bg-sky-400" />
+              Your complete Leafs coverage
+            </p>
+            <h1 className="text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-5xl">
+              <span className="block text-white">Every game.</span>
+              <span className="block text-sky-400">Up-to-the-minute.</span>
+            </h1>
+          </div>
+
+          {/* Right: blurb + newsletter card */}
+          <div className="space-y-6">
+            <p className="max-w-xl text-base leading-relaxed text-blue-100">
+              The fastest way to follow the Toronto Maple Leafs — news, video, podcasts and
+              scores from across the league, aggregated and summarized.
+            </p>
+
+            <div className="rounded-xl border border-white/15 bg-[#161b89]/60 p-5 backdrop-blur-sm sm:p-6">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
+                ★ Free daily newsletter
+              </p>
+              <p className="mb-4 text-lg font-bold leading-snug text-white">
+                The most recent Leafs and team updates, in your inbox by{' '}
+                <span className="text-sky-400">7:00 AM EST</span>.
+              </p>
+
+              <form className="flex flex-col gap-2 sm:flex-row">
+                <label htmlFor="hero-email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="hero-email"
+                  type="email"
+                  required
+                  placeholder="you@email.com"
+                  className="min-w-0 flex-1 rounded bg-white px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded bg-sky-400 px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#161b89] transition-colors hover:bg-sky-300"
+                >
+                  Get the 7 AM recap
+                </button>
+              </form>
+
+              <p className="mt-3 text-xs text-blue-200">
+                One sharp email every morning. Join free — unsubscribe anytime.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -268,27 +330,6 @@ export default async function HomePage() {
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section
-        id="newsletter"
-        className="py-12 bg-blue-50 dark:bg-slate-800 rounded-lg text-center scroll-mt-28"
-      >
-        <h2 className="text-3xl font-bold mb-4">Never Miss a Leafs Update</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-300 mb-6 max-w-2xl mx-auto">
-          Subscribe to our daily newsletter and get the latest Leafs news delivered to your inbox every morning.
-        </p>
-        <div className="flex gap-2 justify-center">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="px-4 py-3 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition-colors">
-            Subscribe
-          </button>
         </div>
       </section>
 
