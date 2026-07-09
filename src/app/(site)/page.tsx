@@ -108,36 +108,50 @@ export default async function HomePage() {
         id="newsletter"
         className="relative isolate overflow-hidden scroll-mt-28 -mt-8 mx-[calc(50%-50vw)] w-screen"
       >
-        {/* Decorative: the headline carries the meaning, so the image is alt="" */}
+        {/* Decorative: the headline carries the meaning, so the image is alt="".
+            No filters: this is a bright, already-contrasty photo, unlike the dark
+            duotone it replaced — lifting it further only blows out the ice. */}
         <Image
-          src="/images/matthews-hero.webp"
+          src="/images/front-page-hero.webp"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[70%_60%] -z-10 brightness-[1.14] contrast-[1.34] saturate-[1.2]"
+          className="object-cover object-[50%_42%] -z-10"
         />
-        {/* Navy wash. The source art is a navy duotone, so the image is dark
-            everywhere and white text survives with little or no wash over it.
-            That lets the wash read as a flat navy block on the left that clears
-            entirely well before the player's focal point at 70%, rather than
-            greying him out. The headline glyphs end around 45%.
+        {/* Navy wash. Never fully opaque: it holds 70% behind the headline column
+            so the copy has a solid bed, then clears entirely by 80% to leave the
+            players and the ice untouched. The floor here is 55% — below that,
+            white small text drops under 4.5:1 against this photo's brightest
+            pixels — so 70% buys the headline real backing while still reading
+            through to the arena.
 
-            Below md the grid is a single column and the text runs the full width,
-            so the wash keeps a floor rather than clearing — the headline needs the
-            backing more than the player needs the light. */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand from-35% via-brand/70 via-70% to-brand/55 md:from-40% md:via-brand/15 md:via-60% md:to-transparent md:to-72%" />
+            Below md the grid is one column and the text runs the full width, so
+            the wash is a flat scrim rather than a gradient. */}
+        <div className="absolute inset-0 -z-10 bg-brand/65 md:bg-transparent md:bg-gradient-to-r md:from-brand/70 md:from-45% md:via-brand/30 md:via-62% md:to-transparent md:to-80%" />
+
+        {/* A soft navy pool under the headline column. Deepening the wash itself
+            would darken the players too; this only shades where the copy sits and
+            feathers out before it reaches them. md-only — below that the flat
+            scrim already backs the text. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 hidden opacity-50 md:block md:bg-[radial-gradient(ellipse_58%_85%_at_24%_50%,var(--brand)_0%,transparent_70%)]"
+        />
 
         <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-20 lg:px-8">
           {/* Left: kicker + headline */}
           <div>
-            <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-              <span aria-hidden="true" className="h-0.5 w-8 bg-blue-300" />
+            {/* Kicker is small text over a translucent wash, so it stays white —
+                the #9999CC accent reaches only 2.81:1 there even at 70%. The
+                headline holds its blue tint at blue-100, which clears AA. */}
+            <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white">
+              <span aria-hidden="true" className="h-0.5 w-8 bg-white" />
               Your complete Maple Leafs coverage
             </p>
             <h1 className="text-4xl font-bold uppercase leading-[1.05] tracking-tight text-white sm:text-5xl">
               <span className="block">Latest team news.</span>
-              <span className="block text-blue-300">Up-to-the-minute.</span>
+              <span className="block text-blue-100">Up-to-the-minute.</span>
             </h1>
           </div>
 
@@ -146,9 +160,10 @@ export default async function HomePage() {
             {/* The card floats over the cleared part of the hero, so its surface
                 tone follows whatever pixel is behind it. backdrop-brightness does
                 the legibility work — it darkens the artwork uniformly rather than
-                hiding it — which lets the navy fill drop to /30 and show far more
-                of the image than a heavier, flatter fill would. */}
-            <div className="rounded-xl border border-white/20 bg-brand/30 p-5 backdrop-blur-sm backdrop-brightness-[.55] sm:p-6">
+                hiding it — keeping the fill light enough to show the image through.
+                The brightness is lower than the old duotone needed: this photo's
+                ice runs far hotter than the smoke it replaced. */}
+            <div className="rounded-xl border border-white/20 bg-brand/35 p-5 backdrop-blur-sm backdrop-brightness-[.45] sm:p-6">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
                 ★ Free daily newsletter
               </p>
