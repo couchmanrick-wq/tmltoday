@@ -101,10 +101,12 @@ export default async function HomePage() {
     <div className="space-y-16">
       {/* Hero Section */}
       {/* Breaks out of the max-w-7xl container in (site)/layout.tsx so the
-          artwork bleeds to both viewport edges. */}
+          artwork bleeds to both viewport edges. The -mt-8 cancels that
+          container's py-8 for the hero alone, closing the white band under the
+          header; the other pages still want that top padding. */}
       <section
         id="newsletter"
-        className="relative isolate overflow-hidden scroll-mt-28 mx-[calc(50%-50vw)] w-screen"
+        className="relative isolate overflow-hidden scroll-mt-28 -mt-8 mx-[calc(50%-50vw)] w-screen"
       >
         {/* Decorative: the headline carries the meaning, so the image is alt="" */}
         <Image
