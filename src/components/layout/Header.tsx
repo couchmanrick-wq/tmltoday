@@ -4,16 +4,28 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { FORUM_URL } from '@/lib/site';
 
-const NAV_ITEMS = [
+type NavItem = {
+  href: string;
+  label: string;
+  /** Opens in a new tab; never marked as the active route. */
+  external?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/videos', label: 'Videos' },
+  { href: '/news', label: 'News' },
   { href: '/podcasts', label: 'Podcasts' },
-  { href: '/columns', label: 'Columns' },
-  { href: '/players', label: 'Players' },
-  { href: '/teams', label: 'Teams' },
-  { href: '/standings', label: 'Standings' },
+  { href: '/videos', label: 'Videos' },
+  { href: FORUM_URL, label: 'Forums', external: true },
+  { href: '/teams', label: 'Team' },
+  // Anchors the newsletter signup on the homepage, so it works from any route.
+  { href: '/#newsletter', label: 'Newsletter' },
 ];
+
+const isActive = (item: NavItem, pathname: string) =>
+  !item.external && !item.href.includes('#') && item.href === pathname;
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,29 +65,21 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {NAV_ITEMS.map((item) => (
-              <NavLink key={item.href} href={item.href} active={pathname === item.href}>
-                {item.label}
-              </NavLink>
+              <NavLink key={item.href} item={item} active={isActive(item, pathname)} />
             ))}
           </nav>
 
-          {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-2">
-            <button className="hidden sm:inline px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">
-              Newsletter
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setMenuOpen((open) => !open)}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
-              aria-label={menuOpen ? 'Close main menu' : 'Open main menu'}
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              {menuOpen ? <CloseIcon /> : <MenuIcon />}
-            </button>
-          </div>
+          {/* Mobile toggle */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? 'Close main menu' : 'Open main menu'}
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            {menuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
         </div>
       </div>
 
@@ -87,24 +91,14 @@ export default function Header() {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 space-y-1">
             {NAV_ITEMS.map((item) => (
-              <Link
+              <NavLink
                 key={item.href}
-                href={item.href}
-                aria-current={pathname === item.href ? 'page' : undefined}
-                onClick={() => setMenuOpen(false)}
-                className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
-                  pathname === item.href
-                    ? 'bg-slate-100 dark:bg-slate-800 text-blue-600'
-                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                {item.label}
-              </Link>
+                item={item}
+                active={isActive(item, pathname)}
+                onNavigate={() => setMenuOpen(false)}
+                block
+              />
             ))}
-
-            <button className="sm:hidden w-full mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">
-              Newsletter
-            </button>
           </div>
         </nav>
       )}
@@ -113,25 +107,46 @@ export default function Header() {
 }
 
 function NavLink({
-  href,
+  item,
   active,
-  children,
+  block,
+  onNavigate,
 }: {
-  href: string;
+  item: NavItem;
   active?: boolean;
-  children: React.ReactNode;
+  block?: boolean;
+  onNavigate?: () => void;
 }) {
+  const className = [
+    block ? 'block px-3 py-2 text-base' : 'px-3 py-2 text-sm',
+    'font-medium rounded-md transition-colors',
+    active
+      ? 'bg-slate-100 dark:bg-slate-800 text-blue-600'
+      : 'hover:bg-slate-100 dark:hover:bg-slate-800',
+  ].join(' ');
+
+  if (item.external) {
+    return (
+      <a
+        href={item.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onNavigate}
+        className={className}
+      >
+        {item.label}
+      </a>
+    );
+  }
+
   return (
     <Link
-      href={href}
+      href={item.href}
       aria-current={active ? 'page' : undefined}
-      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-        active
-          ? 'bg-slate-100 dark:bg-slate-800 text-blue-600'
-          : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-      }`}
+      onClick={onNavigate}
+      className={className}
     >
-      {children}
+      {item.label}
     </Link>
   );
 }

@@ -272,7 +272,10 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 bg-blue-50 dark:bg-slate-800 rounded-lg text-center">
+      <section
+        id="newsletter"
+        className="py-12 bg-blue-50 dark:bg-slate-800 rounded-lg text-center scroll-mt-28"
+      >
         <h2 className="text-3xl font-bold mb-4">Never Miss a Leafs Update</h2>
         <p className="text-lg text-slate-600 dark:text-slate-300 mb-6 max-w-2xl mx-auto">
           Subscribe to our daily newsletter and get the latest Leafs news delivered to your inbox every morning.
