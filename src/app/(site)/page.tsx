@@ -124,8 +124,8 @@ export default async function HomePage() {
               <span aria-hidden="true" className="h-0.5 w-8 bg-sky-400" />
               Your complete Leafs coverage
             </p>
-            <h1 className="text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-5xl">
-              <span className="block text-white">Every game.</span>
+            <h1 className="text-4xl font-bold uppercase leading-[1.05] tracking-tight text-white sm:text-5xl">
+              <span className="block">Every game.</span>
               <span className="block text-sky-400">Up-to-the-minute.</span>
             </h1>
           </div>
