@@ -151,7 +151,7 @@ export default async function HomePage() {
                 ★ Free daily newsletter
               </p>
               <p className="mb-4 text-lg font-bold leading-snug text-white">
-                The most recent Leafs and team updates, in your inbox by{' '}
+                Latest Leafs News to your inbox by{' '}
                 {/* The accent is an underline, not the text colour: #9999CC only
                     reaches 3.2:1 on this translucent card, but a decoration
                     carries no contrast requirement. */}
