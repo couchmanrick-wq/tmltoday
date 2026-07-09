@@ -22,6 +22,14 @@ export const metadata: Metadata = {
 	title: "TML Today - Toronto Maple Leafs News & Updates",
 	description: "Your source for Toronto Maple Leafs news, videos, podcasts, and community discussion. Independent aggregator of Leafs content.",
 	keywords: "Toronto Maple Leafs, NHL, hockey news, Leafs news, TML",
+	icons: {
+		icon: [
+			{ url: "/favicon.webp", type: "image/webp" },
+			// Safari does not reliably accept a WebP favicon; it takes this one.
+			{ url: "/favicon.png", type: "image/png" },
+		],
+		apple: "/apple-touch-icon.png",
+	},
 };
 
 export default function RootLayout({
@@ -31,9 +39,6 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<head>
-				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
-			</head>
 			<body className={`${montserrat.variable} ${roboto.variable} antialiased flex flex-col min-h-screen`}>
 				<Header />
 				<main className="flex-1">
