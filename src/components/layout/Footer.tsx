@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { FORUM_URL } from '@/lib/site';
 
 export default function Footer() {
   return (
@@ -63,7 +64,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="/forum"
+                  href={FORUM_URL}
                   className="hover:text-white transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -4,6 +4,7 @@ import { PlayerGrid } from '@/components/content/PlayerCard';
 import { getTrendingPlayers } from '@/data/teams';
 import { getForumThreads } from '@/lib/content';
 import { formatTimeAgo } from '@/lib/format';
+import { FORUM_URL } from '@/lib/site';
 import { NewsArticle } from '@/types';
 
 // Forum threads are read from D1 on each request, so render dynamically.
@@ -129,7 +130,7 @@ export default async function HomePage() {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">Latest from the Forums</h2>
           <a
-            href="/forum"
+            href={FORUM_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 font-semibold"
@@ -295,7 +296,7 @@ export default async function HomePage() {
           Discuss Leafs hockey with fans from across the world on our dedicated forum.
         </p>
         <a
-          href="/forum"
+          href={FORUM_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block px-6 py-3 bg-slate-900 text-white font-semibold rounded hover:bg-slate-800 transition-colors"
