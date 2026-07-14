@@ -11,6 +11,7 @@ const TABS = [
   { href: '/admin/health', label: 'Health' },
   { href: '/admin/account', label: 'Account' },
   { href: '/admin/contributors', label: 'Contributors' },
+  { href: '/admin/donors', label: 'Donors' },
 ];
 
 export function AdminNav() {
