@@ -1,3 +1,15 @@
+import { NewsArticle } from '@/types';
+
+/**
+ * "Toronto Star - Dave Feschuk" for written pieces. Podcasts and videos are credited to the show or
+ * channel rather than a writer, so they stay as just the publication.
+ */
+export function sourceByline(article: Pick<NewsArticle, 'source' | 'author' | 'contentType'>): string {
+  const creditsAuthor = article.contentType !== 'podcast' && article.contentType !== 'video';
+
+  return creditsAuthor && article.author ? `${article.source} - ${article.author}` : article.source;
+}
+
 /**
  * Render an ISO timestamp as a coarse "time ago" string,
  * falling back to a locale date once it is a week old.

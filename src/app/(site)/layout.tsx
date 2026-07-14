@@ -1,11 +1,14 @@
-export default function SiteLayout({
+import { getTrendingPlayers } from '@/data/teams';
+import { SiteContentFrame } from '@/components/layout/SiteContentFrame';
+import { getRosterStats } from '@/lib/leafs-stats';
+
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {children}
-    </div>
-  );
+  const rosterStats = await getRosterStats();
+  const trendingPlayers = getTrendingPlayers();
+
+  return <SiteContentFrame trendingPlayers={trendingPlayers} rosterStats={rosterStats}>{children}</SiteContentFrame>;
 }

@@ -1,0 +1,41 @@
+<div class="tml-header">
+    <div class="tml-header-inner">
+
+        <a href="/" class="tml-logo">
+            <img src="/community/data/assets/logo_default/TML_Today_logo_navy_000080.webp" alt="TML Today">
+        </a>
+
+        <nav class="tml-nav">
+
+            <a href="/">Home</a>
+
+            <a href="/news">News</a>
+
+            <a href="/podcasts">Podcasts</a>
+
+            <a href="/videos">Videos</a>
+
+            <a href="/community/" class="active">Forums</a>
+
+            <a href="/teams">Team</a>
+
+            <a href="/#newsletter">Newsletter</a>
+
+        </nav>
+
+        <div class="tml-user">
+
+            <xf:if is="$xf.visitor.user_id">
+
+                <xf:avatar user="$xf.visitor" size="s" />
+
+            <xf:else />
+
+                <a href="{{ link('login') }}">Login</a>
+
+            </xf:if>
+
+        </div>
+
+    </div>
+</div>

@@ -1,17 +1,27 @@
-import { NewsGrid, NewsList } from '@/components/content/NewsCard';
-import { getEnrichedArticles } from '@/lib/aggregator/db';
+import { NewsList } from '@/components/content/NewsCard';
+import { Pagination } from '@/components/content/Pagination';
 import { FALLBACK_ARTICLES } from '@/lib/fallback-content';
+import { getArticlePage, parsePageParam } from '@/lib/pagination';
 
 export const metadata = {
   title: 'News - TML Today',
   description: 'The latest Toronto Maple Leafs news from across the hockey world.',
+  alternates: { canonical: '/news' },
 };
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewsPage() {
-  const articles = await getEnrichedArticles({ limit: 60 });
-  const news = articles.length > 0 ? articles : FALLBACK_ARTICLES;
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page } = await searchParams;
+  const feed = await getArticlePage(
+    { orderBy: 'published', excludeDuplicates: true },
+    parsePageParam(page),
+    FALLBACK_ARTICLES
+  );
 
   return (
     <div className="space-y-12">
@@ -22,17 +32,9 @@ export default async function NewsPage() {
         </p>
       </div>
 
-      {/* Top stories */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">Top Stories</h2>
-        <NewsGrid articles={news.slice(0, 3)} cols={3} />
-      </section>
+      <NewsList articles={feed.articles} />
 
-      {/* Everything else */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">More News</h2>
-        <NewsList articles={news.slice(3)} />
-      </section>
+      <Pagination page={feed.page} pageCount={feed.pageCount} basePath="/news" />
     </div>
   );
 }

@@ -1,7 +1,11 @@
-'use client';
-
 import { NewsList } from '@/components/content/NewsCard';
 import { NewsArticle } from '@/types';
+
+export const metadata = {
+  title: 'Columns - TML Today',
+  description: 'Opinion, analysis and columns on the Toronto Maple Leafs.',
+  alternates: { canonical: '/columns' },
+};
 
 // Mock column data
 const COLUMNS: NewsArticle[] = [

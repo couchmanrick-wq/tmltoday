@@ -22,10 +22,11 @@ const RUMOUR_TERMS = ['rumor', 'rumour', 'speculation', 'linked', 'believed', 'c
 
 export function enrichArticle(article: NewsArticle, existing: NewsArticle[] = []): NewsArticle {
   const text = normalizeText(`${article.title} ${article.description}`);
+  const sourceProfile = getSourceByName(article.source);
   const players = LEAFS_ROSTER.filter((player) => text.includes(player.name.toLowerCase())).map((player) => player.name);
   const coaches = COACHES.filter((coach) => text.includes(coach.toLowerCase()));
   const topic = classifyTopic(text, article.contentType);
-  const isRumour = topic === 'rumour' || RUMOUR_TERMS.some((term) => text.includes(term));
+  const isRumour = Boolean(sourceProfile?.rumourFocused) || topic === 'rumour' || RUMOUR_TERMS.some((term) => text.includes(term));
   const rumourConfidence = isRumour ? scoreRumourConfidence(text, article.source) : 0;
   const sentiment = assignSentiment(text);
   const duplicateOf = findDuplicate(article, existing);
@@ -60,13 +61,18 @@ export function enrichArticles(articles: NewsArticle[]) {
   return enriched.sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0));
 }
 
+const MAX_SUMMARY_LENGTH = 300;
+
 function summarize(article: NewsArticle, topic: StoryTopic, players: string[]) {
   const subject = players.length > 0 ? players.slice(0, 2).join(' and ') : 'the Maple Leafs';
   const source = article.source ? `${article.source} reports` : 'A new report says';
   const description = stripHtml(article.description).replace(/\s+/g, ' ').trim();
   const base = description || article.title;
+  const summary = `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${trimToSentence(base, 180)}`;
 
-  return `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${trimToSentence(base, 180)}`;
+  // The lead-in is built from source/topic/player names, so it has no fixed width — cap the whole
+  // summary rather than trusting the cap on the description alone.
+  return trimToSentence(summary, MAX_SUMMARY_LENGTH);
 }
 
 function generateTakeaways(

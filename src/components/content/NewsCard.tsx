@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatTimeAgo } from '@/lib/format';
+import { formatTimeAgo, sourceByline } from '@/lib/format';
 import { NewsArticle } from '@/types';
 
 interface NewsCardProps {
@@ -50,9 +50,9 @@ export function NewsCard({ article }: NewsCardProps) {
       </p>
 
       {/* Metadata */}
-      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <span className="font-medium">{article.source}</span>
-        <span>{formatTimeAgo(article.publishedAt)}</span>
+      <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <span className="font-medium">{sourceByline(article)}</span>
+        <span className="shrink-0">{formatTimeAgo(article.publishedAt)}</span>
       </div>
     </Link>
   );
@@ -115,9 +115,9 @@ export function NewsList({ articles }: NewsListProps) {
             <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2">
               {article.description}
             </p>
-            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span>{article.source}</span>
-              <span>{formatTimeAgo(article.publishedAt)}</span>
+            <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+              <span>{sourceByline(article)}</span>
+              <span className="shrink-0">{formatTimeAgo(article.publishedAt)}</span>
             </div>
           </div>
         </Link>

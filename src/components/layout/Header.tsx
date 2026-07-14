@@ -19,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/podcasts', label: 'Podcasts' },
   { href: '/videos', label: 'Videos' },
   { href: FORUM_URL, label: 'Forums', external: true },
-  { href: '/teams', label: 'Team' },
+  { href: '/team', label: 'Team' },
   // Anchors the newsletter signup on the homepage, so it works from any route.
   { href: '/#newsletter', label: 'Newsletter' },
 ];

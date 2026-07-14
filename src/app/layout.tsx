@@ -18,7 +18,10 @@ const roboto = Roboto({
 	display: "swap",
 });
 
+const SITE_URL = "https://tmltoday.couchmanrick.workers.dev";
+
 export const metadata: Metadata = {
+	metadataBase: new URL(SITE_URL),
 	title: "TML Today - Toronto Maple Leafs News & Updates",
 	description: "Your source for Toronto Maple Leafs news, videos, podcasts, and community discussion. Independent aggregator of Leafs content.",
 	keywords: "Toronto Maple Leafs, NHL, hockey news, Leafs news, TML",
@@ -40,6 +43,24 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${montserrat.variable} ${roboto.variable} antialiased flex flex-col min-h-screen overflow-x-clip`}>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							"@context": "https://schema.org",
+							"@type": "WebSite",
+							name: "TML Today",
+							alternateName: "Toronto Maple Leafs Today",
+							url: SITE_URL,
+							description: "Independent aggregator of Toronto Maple Leafs news, videos, podcasts, rumours and prospects.",
+							publisher: {
+								"@type": "Organization",
+								name: "TML Today",
+								logo: { "@type": "ImageObject", url: `${SITE_URL}/images/tmltoday-round-logo.webp` },
+							},
+						}),
+					}}
+				/>
 				<Header />
 				<main className="flex-1">
 					{children}

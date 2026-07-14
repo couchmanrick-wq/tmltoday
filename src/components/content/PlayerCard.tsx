@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Player } from '@/types';
+import { playerSlug } from '@/data/teams';
 
 interface PlayerCardProps {
   player: Player;
@@ -10,7 +11,7 @@ interface PlayerCardProps {
 
 export function PlayerCard({ player }: PlayerCardProps) {
   return (
-    <Link href={`/players/${player.id}`} className="block bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <Link href={`/players/${playerSlug(player.name)}`} className="block bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       {/* Player Image */}
       <div className="relative w-full h-48 bg-gradient-to-b from-blue-500 to-blue-600 flex items-center justify-center">
         {player.image ? (

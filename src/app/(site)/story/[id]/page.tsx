@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getEnrichedArticleById, getEnrichedArticles } from '@/lib/aggregator/db';
 import { FALLBACK_ARTICLES } from '@/lib/fallback-content';
-import { formatTimeAgo } from '@/lib/format';
+import { formatTimeAgo, sourceByline } from '@/lib/format';
 import { NewsArticle } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -25,15 +25,10 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
       <header className="space-y-5">
         <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wide">
           <span className="rounded bg-blue-100 px-2 py-1 text-blue-800">{story.topic ?? story.contentType}</span>
-          {story.isRumour && (
-            <span className="rounded bg-amber-100 px-2 py-1 text-amber-900">
-              Rumour confidence {story.rumourConfidence ?? 0}%
-            </span>
-          )}
         </div>
         <h1 className="max-w-4xl text-4xl font-bold leading-tight">{story.title}</h1>
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-          <span>{story.source}</span>
+          <span>{sourceByline(story)}</span>
           <span aria-hidden="true">/</span>
           <time dateTime={story.publishedAt}>{formatTimeAgo(story.publishedAt)}</time>
           {story.sentiment && (
@@ -43,6 +38,14 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
             </>
           )}
         </div>
+        <a
+          href={story.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center rounded bg-blue-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-500"
+        >
+          Read original article at {story.source} -&gt;
+        </a>
       </header>
 
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -50,6 +53,14 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-xl font-bold">AI Summary</h2>
             <p className="text-lg leading-8 text-slate-700">{story.aiSummary ?? story.description}</p>
+            <a
+              href={story.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex font-bold text-blue-600 hover:text-blue-800"
+            >
+              Read the full original story -&gt;
+            </a>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">

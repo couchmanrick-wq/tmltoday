@@ -1,12 +1,15 @@
 import { NewsArticle } from '@/types';
 import { saveEnrichedArticles } from './db';
 import { enrichArticles } from './enrichment';
+import { refreshLatestForumPosts } from './forum';
 import { discoverArticles } from './scraper';
 
 export interface AggregatorRunResult {
   discovered: number;
   enriched: number;
   saved: number;
+  forumDiscovered: number;
+  forumSaved: number;
   errors: Array<{ source: string; message: string }>;
 }
 
@@ -14,11 +17,25 @@ export async function runAggregator(options: { persist?: boolean; limitPerSource
   const { articles, errors } = await discoverArticles({ limitPerSource: options.limitPerSource ?? 8 });
   const enriched = enrichArticles(articles);
   const saveResult = options.persist === false ? { saved: 0 } : await saveEnrichedArticles(enriched);
+  let forumResult = { discovered: 0, saved: 0 };
+
+  if (options.persist !== false) {
+    try {
+      forumResult = await refreshLatestForumPosts(10);
+    } catch (error) {
+      errors.push({
+        source: 'TML Today Forum',
+        message: error instanceof Error ? error.message : 'Unknown forum refresh error',
+      });
+    }
+  }
 
   return {
     discovered: articles.length,
     enriched: enriched.length,
     saved: saveResult.saved,
+    forumDiscovered: forumResult.discovered,
+    forumSaved: forumResult.saved,
     errors,
   };
 }

@@ -1,14 +1,9 @@
-'use client';
+import { getAtlanticStandings, NHL_STANDINGS_SOURCE_URL } from '@/lib/nhl-standings';
 
-export default function StandingsPage() {
-  // Mock standings data
-  const standings = [
-    { rank: 1, team: 'Toronto Maple Leafs', gp: 82, w: 48, l: 22, otl: 12, gf: 312, ga: 248, pts: 108 },
-    { rank: 2, team: 'Boston Bruins', gp: 82, w: 47, l: 23, otl: 12, gf: 305, ga: 245, pts: 106 },
-    { rank: 3, team: 'Tampa Bay Lightning', gp: 82, w: 46, l: 24, otl: 12, gf: 298, ga: 252, pts: 104 },
-    { rank: 4, team: 'Florida Panthers', gp: 82, w: 44, l: 26, otl: 12, gf: 290, ga: 260, pts: 100 },
-    { rank: 5, team: 'Montreal Canadiens', gp: 82, w: 42, l: 28, otl: 12, gf: 285, ga: 270, pts: 96 },
-  ];
+export const metadata = { alternates: { canonical: '/standings' } };
+
+export default async function StandingsPage() {
+  const standings = await getAtlanticStandings();
 
   return (
     <div className="space-y-12">
@@ -21,7 +16,12 @@ export default function StandingsPage() {
 
       {/* Division Standings */}
       <section>
-        <h2 className="text-2xl font-bold mb-6">Atlantic Division (2024-25)</h2>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-2xl font-bold">Atlantic Division (2025-26)</h2>
+          <a href={NHL_STANDINGS_SOURCE_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800">
+            Source: NHL
+          </a>
+        </div>
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 dark:bg-slate-900">
@@ -54,19 +54,19 @@ export default function StandingsPage() {
                   </td>
                   <td className="px-4 py-3 font-semibold">{row.team}</td>
                   <td className="text-center px-4 py-3 text-sm">{row.gp}</td>
-                  <td className="text-center px-4 py-3 text-sm">{row.w}</td>
-                  <td className="text-center px-4 py-3 text-sm">{row.l}</td>
+                  <td className="text-center px-4 py-3 text-sm">{row.wins}</td>
+                  <td className="text-center px-4 py-3 text-sm">{row.losses}</td>
                   <td className="text-center px-4 py-3 text-sm hidden sm:table-cell">
                     {row.otl}
                   </td>
                   <td className="text-center px-4 py-3 text-sm hidden md:table-cell">
-                    {row.gf}
+                    {row.goalsFor}
                   </td>
                   <td className="text-center px-4 py-3 text-sm hidden md:table-cell">
-                    {row.ga}
+                    {row.goalsAgainst}
                   </td>
                   <td className="text-center px-4 py-3 font-bold text-lg text-blue-600">
-                    {row.pts}
+                    {row.points}
                   </td>
                 </tr>
               ))}

@@ -26,34 +26,69 @@ interface EnrichedContentRow {
   importance: number | null;
 }
 
-export async function getEnrichedArticles(options: { limit?: number; type?: NewsArticle['contentType']; topic?: NewsArticle['topic'] } = {}) {
+export interface ArticleQuery {
+  limit?: number;
+  offset?: number;
+  type?: NewsArticle['contentType'];
+  topic?: NewsArticle['topic'];
+  rumours?: boolean;
+  search?: string;
+  orderBy?: 'importance' | 'published';
+  /** Drops stories the enricher flagged as a repeat of one already in the feed. */
+  excludeDuplicates?: boolean;
+}
+
+function buildQuery(options: ArticleQuery) {
+  const filters: string[] = [];
+  const bindings: Array<string | number> = [];
+
+  if (options.type) {
+    filters.push('content_type = ?');
+    bindings.push(options.type);
+  }
+
+  if (options.topic) {
+    filters.push('topic = ?');
+    bindings.push(options.topic);
+  }
+
+  if (options.rumours) {
+    filters.push('is_rumour = 1');
+  }
+
+  if (options.excludeDuplicates) {
+    filters.push('duplicate_of IS NULL');
+  }
+
+  if (options.search) {
+    filters.push('(title LIKE ? OR description LIKE ? OR tags LIKE ?)');
+    const like = `%${options.search}%`;
+    bindings.push(like, like, like);
+  }
+
+  return {
+    where: filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '',
+    orderBy: options.orderBy === 'published' ? 'published_at DESC' : 'importance DESC, published_at DESC',
+    bindings,
+  };
+}
+
+export async function getEnrichedArticles(options: ArticleQuery = {}) {
   try {
     const { env } = getCloudflareContext();
     const limit = options.limit ?? 40;
-    const filters: string[] = [];
-    const bindings: Array<string | number> = [];
-
-    if (options.type) {
-      filters.push('content_type = ?');
-      bindings.push(options.type);
-    }
-
-    if (options.topic) {
-      filters.push('topic = ?');
-      bindings.push(options.topic);
-    }
-
-    const where = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
+    const offset = options.offset ?? 0;
+    const { where, orderBy, bindings } = buildQuery(options);
     const query = `
       SELECT *
       FROM enriched_content
       ${where}
-      ORDER BY importance DESC, published_at DESC
-      LIMIT ?
+      ORDER BY ${orderBy}
+      LIMIT ? OFFSET ?
     `;
 
     const { results } = await env.DB.prepare(query)
-      .bind(...bindings, limit)
+      .bind(...bindings, limit, offset)
       .all<EnrichedContentRow>();
 
     return results.map(rowToArticle);
@@ -63,8 +98,47 @@ export async function getEnrichedArticles(options: { limit?: number; type?: News
   }
 }
 
+/**
+ * Every story the enricher tagged with this player. `players` is a JSON array, so the name is
+ * matched with its quotes attached — otherwise "Matthew Knies" would also match "Matthews".
+ */
+export async function getArticlesForPlayer(name: string, limit = 60) {
+  try {
+    const { env } = getCloudflareContext();
+    const { results } = await env.DB.prepare(
+      `SELECT *
+       FROM enriched_content
+       WHERE players LIKE ? AND duplicate_of IS NULL
+       ORDER BY published_at DESC
+       LIMIT ?`
+    )
+      .bind(`%"${name}"%`, limit)
+      .all<EnrichedContentRow>();
+
+    return results.map(rowToArticle);
+  } catch (error) {
+    console.error('Error fetching player stories', error);
+    return [];
+  }
+}
+
+export async function countEnrichedArticles(options: ArticleQuery = {}) {
+  try {
+    const { env } = getCloudflareContext();
+    const { where, bindings } = buildQuery(options);
+    const row = await env.DB.prepare(`SELECT COUNT(*) AS total FROM enriched_content ${where}`)
+      .bind(...bindings)
+      .first<{ total: number }>();
+
+    return row?.total ?? 0;
+  } catch (error) {
+    console.error('Error counting enriched content', error);
+    return 0;
+  }
+}
+
 export async function getNewsroomFeed(): Promise<NewsroomFeed> {
-  const articles = await getEnrichedArticles({ limit: 80 });
+  const articles = await getEnrichedArticles({ limit: 80, orderBy: 'published' });
   const visible = articles.filter((article) => !article.duplicateOf);
   const latest = [...visible].sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
@@ -81,16 +155,55 @@ export async function getNewsroomFeed(): Promise<NewsroomFeed> {
   };
 }
 
+// Look the story up by id rather than scanning a page of the feed — the table holds far more rows
+// than any one page of it, so anything outside the top slice used to 404.
 export async function getEnrichedArticleById(id: string) {
-  const articles = await getEnrichedArticles({ limit: 100 });
-  return articles.find((article) => article.id === id) ?? null;
+  try {
+    const { env } = getCloudflareContext();
+    const row = await env.DB.prepare('SELECT * FROM enriched_content WHERE id = ?')
+      .bind(id)
+      .first<EnrichedContentRow>();
+
+    return row ? rowToArticle(row) : null;
+  } catch (error) {
+    console.error('Error fetching story', error);
+    return null;
+  }
+}
+
+// D1 allows at most 100 bound parameters per query, so anything built from the article list has to
+// be chunked — the aggregator routinely discovers several hundred links in one run.
+const D1_BIND_LIMIT = 90;
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+
+  return chunks;
 }
 
 export async function saveEnrichedArticles(articles: NewsArticle[]) {
   if (articles.length === 0) return { saved: 0 };
 
   const { env } = getCloudflareContext();
-  const statements = articles.map((article) =>
+  const blockedLinks = new Set<string>();
+
+  for (const links of chunk(articles.map((article) => article.link), D1_BIND_LIMIT)) {
+    const placeholders = links.map(() => '?').join(', ');
+    const { results } = await env.DB.prepare(`SELECT link FROM blocked_content WHERE link IN (${placeholders})`)
+      .bind(...links)
+      .all<{ link: string }>();
+
+    results.forEach((row) => blockedLinks.add(row.link));
+  }
+
+  const allowedArticles = articles.filter((article) => !blockedLinks.has(article.link));
+  if (allowedArticles.length === 0) return { saved: 0 };
+
+  const statements = allowedArticles.map((article) =>
     env.DB.prepare(
       `
         INSERT INTO enriched_content (
@@ -103,6 +216,7 @@ export async function saveEnrichedArticles(articles: NewsArticle[]) {
         ON CONFLICT(link) DO UPDATE SET
           title = excluded.title,
           description = excluded.description,
+          author = excluded.author,
           ai_summary = excluded.ai_summary,
           key_takeaways = excluded.key_takeaways,
           players = excluded.players,
@@ -142,8 +256,11 @@ export async function saveEnrichedArticles(articles: NewsArticle[]) {
     )
   );
 
-  await env.DB.batch(statements);
-  return { saved: articles.length };
+  for (const batch of chunk(statements, 50)) {
+    await env.DB.batch(batch);
+  }
+
+  return { saved: allowedArticles.length };
 }
 
 function rowToArticle(row: EnrichedContentRow): NewsArticle {
