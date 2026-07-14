@@ -10,7 +10,7 @@ export const MAX_DONATION_CENTS = 500_000;
 
 export const PRESET_AMOUNTS_CENTS: Record<DonationInterval, number[]> = {
   'one-time': [1000, 2500, 5000, 10000],
-  monthly: [500, 1000, 2000, 5000],
+  monthly: [500, 1000, 1500, 2000],
 };
 
 export function isDonationInterval(value: unknown): value is DonationInterval {
