@@ -77,7 +77,7 @@ jobs:
           PROMPT: ${{ inputs.prompt }}
         run: |
           npm install -g @openai/codex
-          codex login --api-key "$OPENAI_API_KEY"
+          printenv OPENAI_API_KEY | codex login --with-api-key
           codex exec \
             --sandbox danger-full-access \
             --skip-git-repo-check \
