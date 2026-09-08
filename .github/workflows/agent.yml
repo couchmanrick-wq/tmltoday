@@ -78,8 +78,8 @@ jobs:
         run: |
           npm install -g @openai/codex
           codex exec \
-            --full-auto \
-            --sandbox workspace-write \
+            --sandbox danger-full-access \
+            --skip-git-repo-check \
             "You are working in this repository. Apply the change described below.
              Keep it minimal and match existing code style and structure.
              If the project has a typecheck or test script, run it and make it pass.
