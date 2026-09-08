@@ -1,0 +1,109 @@
+# Copy this file into each target project repo as .github/workflows/agent.yml
+#
+# The Rickster dashboard ("Prompt changes" on a project page) triggers this via
+# workflow_dispatch with two inputs: `prompt` and `agent` (claude | codex).
+# The chosen agent edits the working tree; peter-evans/create-pull-request opens
+# the PR. Nothing is committed to the deploy branch directly.
+#
+# Secrets required on the repo (or org), depending on which agents you use:
+#   ANTHROPIC_API_KEY   - for the "claude" option
+#   OPENAI_API_KEY      - for the "codex" option
+# You only need the secret for the agent(s) you actually pick.
+
+name: Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: What should change in this project?
+        required: true
+        type: string
+      agent:
+        description: Which coding agent to use
+        required: true
+        default: claude
+        type: choice
+        options:
+          - claude
+          - codex
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: agent-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Apply requested change with Claude Code
+        if: ${{ inputs.agent == 'claude' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROMPT: ${{ inputs.prompt }}
+        run: |
+          npx --yes @anthropic-ai/claude-code@latest \
+            --print \
+            --dangerously-skip-permissions \
+            --max-turns 40 \
+            "You are working in this repository. Apply the change described below.
+             Keep it minimal and match existing code style and structure.
+             If the project has a typecheck or test script, run it and make it pass.
+             Do NOT commit, push, or open a pull request - only edit files in place.
+
+             CHANGE REQUEST:
+             $PROMPT"
+
+      - name: Apply requested change with OpenAI Codex
+        if: ${{ inputs.agent == 'codex' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROMPT: ${{ inputs.prompt }}
+        run: |
+          npm install -g @openai/codex
+          codex exec \
+            --full-auto \
+            --sandbox workspace-write \
+            "You are working in this repository. Apply the change described below.
+             Keep it minimal and match existing code style and structure.
+             If the project has a typecheck or test script, run it and make it pass.
+             Do NOT commit, push, or open a pull request - only edit files in place.
+
+             CHANGE REQUEST:
+             $PROMPT"
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: agent/${{ github.run_id }}
+          base: ${{ github.ref_name }}
+          commit-message: "Agent (${{ inputs.agent }}): ${{ inputs.prompt }}"
+          title: "Agent (${{ inputs.agent }}): ${{ inputs.prompt }}"
+          body: |
+            Requested via the Rickster dashboard.
+
+            **Agent:** `${{ inputs.agent }}`
+
+            **Prompt**
+
+            > ${{ inputs.prompt }}
+
+            Review before merging. Merging `${{ github.ref_name }}` runs `deploy.yml`.
+          labels: agent
+          delete-branch: true
