@@ -1,9 +1,11 @@
 # Copy this file into each target project repo as .github/workflows/agent.yml
 #
 # The Rickster dashboard ("Prompt changes" on a project page) triggers this via
-# workflow_dispatch with two inputs: `prompt` and `agent` (claude | codex).
-# The chosen agent edits the working tree; peter-evans/create-pull-request opens
-# the PR. Nothing is committed to the deploy branch directly.
+# workflow_dispatch with inputs: `prompt`, `agent` (claude | codex), and
+# `attachments` (JSON array of {name,url} for screenshots/files, fetched into
+# ./agent-attachments/ and removed before the PR). The chosen agent edits the
+# working tree; peter-evans/create-pull-request opens the PR. Nothing is
+# committed to the deploy branch directly.
 #
 # Secrets required on the repo (or org), depending on which agents you use:
 #   ANTHROPIC_API_KEY   - for the "claude" option
@@ -27,6 +29,11 @@ on:
         options:
           - claude
           - codex
+      attachments:
+        description: JSON array of {name,url} files to fetch (set by the dashboard)
+        required: false
+        default: "[]"
+        type: string
 
 permissions:
   contents: write
@@ -52,6 +59,27 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
+      - name: Fetch prompt attachments
+        env:
+          ATTACHMENTS: ${{ inputs.attachments }}
+        run: |
+          set -e
+          mkdir -p agent-attachments
+          printf '%s' "${ATTACHMENTS:-[]}" > /tmp/attachments.json
+          count=$(jq 'length' /tmp/attachments.json)
+          for i in $(seq 0 $((count - 1))); do
+            name=$(jq -r ".[$i].name" /tmp/attachments.json | sed 's#[/\\]##g')
+            url=$(jq -r ".[$i].url" /tmp/attachments.json)
+            curl -fsSL "$url" -o "agent-attachments/$name"
+            echo "  fetched $name"
+          done
+          if [ "$count" -gt 0 ]; then
+            note="Reference files supplied with this request are in ./agent-attachments/ : $(ls agent-attachments | tr '\n' ' '). Consult them (screenshots, data, examples) to inform the change. Do not commit that folder."
+          else
+            note=""
+          fi
+          { echo "ATTACH_NOTE<<__RICKSTER_EOF__"; echo "$note"; echo "__RICKSTER_EOF__"; } >> "$GITHUB_ENV"
+
       - name: Apply requested change with Claude Code
         if: ${{ inputs.agent == 'claude' }}
         env:
@@ -66,6 +94,7 @@ jobs:
              Keep it minimal and match existing code style and structure.
              If the project has a typecheck or test script, run it and make it pass.
              Do NOT commit, push, or open a pull request - only edit files in place.
+             $ATTACH_NOTE
 
              CHANGE REQUEST:
              $PROMPT"
@@ -85,9 +114,14 @@ jobs:
              Keep it minimal and match existing code style and structure.
              If the project has a typecheck or test script, run it and make it pass.
              Do NOT commit, push, or open a pull request - only edit files in place.
+             $ATTACH_NOTE
 
              CHANGE REQUEST:
              $PROMPT"
+
+      - name: Discard attachments so they are never committed
+        if: always()
+        run: rm -rf agent-attachments /tmp/attachments.json
 
       - name: Open pull request
         uses: peter-evans/create-pull-request@v6
