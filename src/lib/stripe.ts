@@ -17,6 +17,7 @@ export type CheckoutSessionInput = {
   successUrl: string;
   cancelUrl: string;
   supporterName?: string;
+  forumsNickname?: string;
   note?: string;
 };
 
@@ -25,6 +26,7 @@ export type MonthlyDonor = {
   id: string;
   itemId: string;
   name: string;
+  forumsNickname: string;
   email: string;
   amountCents: number;
   createdIso: string;
@@ -35,6 +37,7 @@ export type OneTimeDonor = {
   id: string;
   paymentIntentId: string;
   name: string;
+  forumsNickname: string;
   email: string;
   amountCents: number;
   createdIso: string;
@@ -121,7 +124,7 @@ export async function createDonationCheckoutSession(
   const secretKey = getSecretKey(env);
   if (!secretKey) throw new Error('STRIPE_SECRET_KEY is not configured.');
 
-  const { amountCents, interval, successUrl, cancelUrl, supporterName, note } = input;
+  const { amountCents, interval, successUrl, cancelUrl, supporterName, forumsNickname, note } = input;
   const monthly = interval === 'monthly';
 
   const params: Record<string, unknown> = {
@@ -144,6 +147,7 @@ export async function createDonationCheckoutSession(
     metadata: {
       kind: monthly ? 'monthly_support' : 'one_time_support',
       supporter_name: supporterName || '',
+      forums_nickname: forumsNickname || '',
       note: note || '',
     },
     // Session metadata does NOT propagate to the subscription Stripe creates, and
@@ -153,7 +157,11 @@ export async function createDonationCheckoutSession(
     ...(monthly
       ? {
           subscription_data: {
-            metadata: { supporter_name: supporterName || '', note: note || '' },
+            metadata: {
+              supporter_name: supporterName || '',
+              forums_nickname: forumsNickname || '',
+              note: note || '',
+            },
           },
         }
       : {}),
@@ -227,6 +235,7 @@ export async function listMonthlyDonors(
         id: sub.id,
         itemId: item?.id ?? '',
         name: resolveName(sub.metadata?.supporter_name, customer?.name, customer?.email),
+        forumsNickname: String(sub.metadata?.forums_nickname ?? ''),
         email: String(customer?.email ?? ''),
         amountCents: item?.price?.unit_amount ?? 0,
         createdIso: toIso(sub.created),
@@ -256,6 +265,7 @@ export async function listOneTimeDonors(
           session.customer_details?.name,
           session.customer_details?.email
         ),
+        forumsNickname: String(session.metadata?.forums_nickname ?? ''),
         email: String(session.customer_details?.email ?? ''),
         amountCents: session.amount_total ?? 0,
         createdIso: toIso(session.created),

@@ -11,13 +11,13 @@ import {
 } from '@/lib/donations';
 
 const intervals: { id: DonationInterval; label: string; hint: string }[] = [
+  { id: 'monthly', label: 'Monthly (Most Popular)', hint: 'Steady support through the whole season. Cancel any time.' },
   { id: 'one-time', label: 'One Time', hint: 'A single contribution, whenever you feel like it.' },
-  { id: 'monthly', label: 'Monthly', hint: 'Steady support through the whole season. Cancel any time.' },
 ];
 
 export function DonateForm({ cancelled = false }: { cancelled?: boolean }) {
-  const [frequency, setFrequency] = useState<DonationInterval>('one-time');
-  const [presetCents, setPresetCents] = useState<number | null>(PRESET_AMOUNTS_CENTS['one-time'][1]);
+  const [frequency, setFrequency] = useState<DonationInterval>('monthly');
+  const [presetCents, setPresetCents] = useState<number | null>(PRESET_AMOUNTS_CENTS['monthly'][1]);
   const [customAmount, setCustomAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -75,6 +75,7 @@ export function DonateForm({ cancelled = false }: { cancelled?: boolean }) {
           amountCents,
           interval: frequency,
           supporterName: String(formData.get('supporterName') ?? '').trim(),
+          forumsNickname: String(formData.get('forumsNickname') ?? '').trim(),
           note: String(formData.get('note') ?? '').trim(),
         }),
       });
@@ -189,18 +190,32 @@ export function DonateForm({ cancelled = false }: { cancelled?: boolean }) {
         </div>
       </label>
 
-      <label className="block">
-        <span className="mb-2 block text-sm font-semibold text-slate-700">
-          Your name <span className="font-normal text-slate-400">(optional)</span>
-        </span>
-        <input
-          name="supporterName"
-          type="text"
-          autoComplete="name"
-          placeholder="Wendel C."
-          className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-        />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className="mb-2 block text-sm font-semibold text-slate-700">
+            Your name <span className="font-normal text-slate-400">(optional)</span>
+          </span>
+          <input
+            name="supporterName"
+            type="text"
+            autoComplete="name"
+            placeholder="Wendel C."
+            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-2 block text-sm font-semibold text-slate-700">
+            Your forums nickname <span className="font-normal text-slate-400">(optional)</span>
+          </span>
+          <input
+            name="forumsNickname"
+            type="text"
+            placeholder="BigBuff88"
+            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+      </div>
 
       <label className="block">
         <span className="mb-2 block text-sm font-semibold text-slate-700">

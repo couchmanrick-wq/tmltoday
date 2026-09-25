@@ -9,7 +9,7 @@ import { FORUM_URL } from '@/lib/site';
 type NavItem = {
   href: string;
   label: string;
-  /** Opens in a new tab; never marked as the active route. */
+  /** Points off-site; never marked as the active route. */
   external?: boolean;
 };
 
@@ -48,7 +48,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-32 sm:h-40">
+        <div className="flex justify-between items-center h-24 sm:h-28">
           {/* Logo */}
           <Link href="/" className="flex items-center">
             {/* The wordmark is dark navy, so it needs a light plate in dark mode. */}
@@ -58,7 +58,7 @@ export default function Header() {
               width={640}
               height={226}
               priority
-              className="h-24 w-auto sm:h-32 dark:bg-white dark:rounded-md dark:px-2 dark:py-1"
+              className="h-[4.8rem] w-auto sm:h-[6.4rem] dark:bg-white dark:rounded-md dark:px-2 dark:py-1"
             />
           </Link>
 
@@ -133,13 +133,7 @@ function NavLink({
 
   if (item.external) {
     return (
-      <a
-        href={item.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onNavigate}
-        className={className}
-      >
+      <a href={item.href} onClick={onNavigate} className={className}>
         {item.label}
       </a>
     );

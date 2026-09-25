@@ -13,6 +13,7 @@ type DonateBody = {
   amountCents?: unknown;
   interval?: unknown;
   supporterName?: unknown;
+  forumsNickname?: unknown;
   note?: unknown;
 };
 
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       amountCents,
       interval,
       supporterName: clean(body.supporterName, 120),
+      forumsNickname: clean(body.forumsNickname, 120),
       note: clean(body.note, 400),
       successUrl: `${origin}/donate/thanks?amount=${amountCents}&interval=${interval}`,
       cancelUrl: `${origin}/donate?cancelled=1`,

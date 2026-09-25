@@ -125,6 +125,11 @@ export default async function DonorsPage({
                             {donor.email && (
                               <span className="ml-2 text-xs text-slate-500">{donor.email}</span>
                             )}
+                            {donor.forumsNickname && (
+                              <span className="mt-0.5 block text-xs text-slate-500">
+                                Forums: {donor.forumsNickname}
+                              </span>
+                            )}
                           </td>
                           <td className="whitespace-nowrap px-5 py-3 text-sm text-slate-600">
                             {formatAdminDate(donor.createdIso)}
@@ -216,6 +221,9 @@ function MonthlyRow({ donor, editing }: { donor: MonthlyDonor; editing: boolean 
       <td className="px-5 py-3">
         <span className="font-bold text-brand">{donor.name}</span>
         {donor.email && <span className="ml-2 text-xs text-slate-500">{donor.email}</span>}
+        {donor.forumsNickname && (
+          <span className="mt-0.5 block text-xs text-slate-500">Forums: {donor.forumsNickname}</span>
+        )}
       </td>
       <td className="whitespace-nowrap px-5 py-3 text-sm text-slate-600">
         {formatAdminDate(donor.createdIso)}
