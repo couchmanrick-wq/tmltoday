@@ -1,12 +1,14 @@
+import Link from 'next/link';
+
 export function NewsletterCard() {
   return (
     <section id="newsletter" className="scroll-mt-28 overflow-hidden rounded-xl bg-gradient-to-br from-brand to-blue-700 p-5 text-white shadow-sm">
       <p className="text-[11px] font-black uppercase tracking-wider text-amber-300">Free daily newsletter</p>
       <p className="mt-1 text-base font-bold leading-snug">Leafs news in your inbox by 7 AM.</p>
       <form className="mt-3 space-y-2">
-        <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+        <label htmlFor="newsletter-card-email" className="sr-only">Email address</label>
         <input
-          id="newsletter-email"
+          id="newsletter-card-email"
           type="email"
           required
           placeholder="you@email.com"
@@ -16,7 +18,9 @@ export function NewsletterCard() {
           Get the 7 AM recap
         </button>
       </form>
-      <p className="mt-2 text-[11px] text-blue-100">Free · unsubscribe anytime.</p>
+      <p className="mt-2 text-[11px] text-blue-100">
+        Free &middot; unsubscribe anytime &middot; <Link href="/newsletter/archive" className="underline hover:text-white">past editions</Link>
+      </p>
     </section>
   );
 }

@@ -36,6 +36,8 @@ export interface ArticleQuery {
   orderBy?: 'importance' | 'published';
   /** Drops stories the enricher flagged as a repeat of one already in the feed. */
   excludeDuplicates?: boolean;
+  /** Restricts to one calendar day, as `YYYY-MM-DD` against the UTC date of `published_at`. */
+  date?: string;
 }
 
 function buildQuery(options: ArticleQuery) {
@@ -64,6 +66,11 @@ function buildQuery(options: ArticleQuery) {
     filters.push('(title LIKE ? OR description LIKE ? OR tags LIKE ?)');
     const like = `%${options.search}%`;
     bindings.push(like, like, like);
+  }
+
+  if (options.date) {
+    filters.push('substr(published_at, 1, 10) = ?');
+    bindings.push(options.date);
   }
 
   return {

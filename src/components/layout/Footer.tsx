@@ -44,7 +44,7 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-[0.16em] text-white">Connect</h4>
             <ul className="mt-4 space-y-2.5 text-sm">
-              <li><a href="#newsletter" className="text-white underline underline-offset-2 hover:opacity-80">Newsletter</a></li>
+              <li><a href="/newsletter" className="text-white underline underline-offset-2 hover:opacity-80">Newsletter</a></li>
               <li><FooterExternal href={FORUM_URL}>Forum</FooterExternal></li>
               <li><FooterExternal href="https://twitter.com">X / Twitter</FooterExternal></li>
               <li><FooterExternal href="https://instagram.com">Instagram</FooterExternal></li>
