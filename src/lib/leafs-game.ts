@@ -45,6 +45,49 @@ interface NhlGame {
   gameCenterLink?: string;
 }
 
+interface NhlSkaterGameStat {
+  playerId: number;
+  name?: { default?: string };
+  goals?: number;
+  assists?: number;
+  points?: number;
+}
+
+interface NhlGoalieGameStat {
+  playerId: number;
+  name?: { default?: string };
+  savePctg?: number;
+  shotsAgainst?: number;
+  saves?: number;
+  toi?: string;
+}
+
+interface NhlTeamGameStats {
+  forwards?: NhlSkaterGameStat[];
+  defense?: NhlSkaterGameStat[];
+  goalies?: NhlGoalieGameStat[];
+}
+
+interface NhlRosterPlayer {
+  id: number;
+  firstName?: { default?: string };
+  lastName?: { default?: string };
+}
+
+export interface LeafsSkaterGameStat {
+  id: number;
+  name: string;
+  goals: number;
+  assists: number;
+  points: number;
+}
+
+export interface LeafsGoalieGameStat {
+  id: number;
+  name: string;
+  savePercentage?: number;
+}
+
 export interface GameSummary {
   id: number;
   startsAt: string;
@@ -56,6 +99,8 @@ export interface GameSummary {
   radioUrl?: string;
   boxScoreUrl: string;
   condensedGameUrl?: string;
+  leafsSkaters?: LeafsSkaterGameStat[];
+  leafsGoalies?: LeafsGoalieGameStat[];
 }
 
 export interface ProjectedLineup {
@@ -76,7 +121,10 @@ export interface LeafsGamePanelData {
 const teamName = (team: NhlTeam) =>
   [team.placeName?.default, team.commonName?.default].filter(Boolean).join(' ') || team.abbrev || 'Team';
 
-function toGameSummary(game: NhlGame): GameSummary {
+function toGameSummary(
+  game: NhlGame,
+  leafsStats?: { skaters: LeafsSkaterGameStat[]; goalies: LeafsGoalieGameStat[] }
+): GameSummary {
   const torontoTeam = game.awayTeam.abbrev === 'TOR' ? game.awayTeam : game.homeTeam;
   const canadianNetworks = (game.tvBroadcasts ?? [])
     .filter((broadcast) => broadcast.countryCode === 'CA')
@@ -105,7 +153,59 @@ function toGameSummary(game: NhlGame): GameSummary {
     radioUrl: torontoTeam.radioLink,
     boxScoreUrl: game.gameCenterLink ? `${NHL_SITE}${game.gameCenterLink}` : `${NHL_SITE}/gamecenter/${game.id}`,
     condensedGameUrl: game.condensedGame ? `${NHL_SITE}${game.condensedGame}` : undefined,
+    leafsSkaters: leafsStats?.skaters,
+    leafsGoalies: leafsStats?.goalies,
   };
+}
+
+async function getLeafsBoxscoreStats(game: NhlGame) {
+  try {
+    const [boxscoreResponse, rosterResponse] = await Promise.all([
+      fetch(`${NHL_API}/gamecenter/${game.id}/boxscore`, { next: { revalidate: 300 } }),
+      fetch(`${NHL_API}/roster/TOR/current`, { next: { revalidate: 3600 } }),
+    ]);
+    if (!boxscoreResponse.ok) return undefined;
+
+    const boxscore = await boxscoreResponse.json() as {
+      playerByGameStats?: { awayTeam?: NhlTeamGameStats; homeTeam?: NhlTeamGameStats };
+    };
+    const roster = rosterResponse.ok
+      ? await rosterResponse.json() as Record<'forwards' | 'defensemen' | 'goalies', NhlRosterPlayer[]>
+      : { forwards: [], defensemen: [], goalies: [] };
+    const fullNames = new Map(
+      [...(roster.forwards ?? []), ...(roster.defensemen ?? []), ...(roster.goalies ?? [])]
+        .map((player) => [
+          player.id,
+          `${player.firstName?.default ?? ''} ${player.lastName?.default ?? ''}`.trim(),
+        ] as const)
+    );
+    const teamStats = game.awayTeam.abbrev === 'TOR'
+      ? boxscore.playerByGameStats?.awayTeam
+      : boxscore.playerByGameStats?.homeTeam;
+    if (!teamStats) return undefined;
+
+    const skaters = [...(teamStats.forwards ?? []), ...(teamStats.defense ?? [])]
+      .map((player) => ({
+        id: player.playerId,
+        name: fullNames.get(player.playerId) || player.name?.default || 'Leafs skater',
+        goals: player.goals ?? 0,
+        assists: player.assists ?? 0,
+        points: player.points ?? 0,
+      }))
+      .filter((player) => player.goals > 0 || player.assists > 0 || player.points > 0)
+      .sort((a, b) => b.points - a.points || b.goals - a.goals || b.assists - a.assists);
+    const goalies = (teamStats.goalies ?? [])
+      .filter((goalie) => goalie.toi && goalie.toi !== '00:00')
+      .map((goalie) => ({
+        id: goalie.playerId,
+        name: fullNames.get(goalie.playerId) || goalie.name?.default || 'Leafs goalie',
+        savePercentage: goalie.savePctg ?? (goalie.shotsAgainst ? (goalie.saves ?? 0) / goalie.shotsAgainst : undefined),
+      }));
+
+    return { skaters, goalies };
+  } catch {
+    return undefined;
+  }
 }
 
 function namesFromRows(heading: Element | null): string[][] {
@@ -167,9 +267,11 @@ export async function getLeafsGamePanel(): Promise<LeafsGamePanelData> {
   const upcoming = games
     .filter((game) => !['OFF', 'FINAL'].includes(game.gameState ?? '') && Date.parse(game.startTimeUTC) >= now)
     .sort((a, b) => Date.parse(a.startTimeUTC) - Date.parse(b.startTimeUTC));
+  const lastGame = completed[0];
+  const lastGameStats = lastGame ? await getLeafsBoxscoreStats(lastGame) : undefined;
 
   return {
-    lastGame: completed[0] ? toGameSummary(completed[0]) : undefined,
+    lastGame: lastGame ? toGameSummary(lastGame, lastGameStats) : undefined,
     nextGame: upcoming[0] ? toGameSummary(upcoming[0]) : undefined,
     projectedLineup,
   };

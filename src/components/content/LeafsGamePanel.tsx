@@ -56,6 +56,51 @@ function LineRows({ title, rows }: { title: string; rows: string[][] }) {
   );
 }
 
+function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['lastGame']> }) {
+  const skaters = game.leafsSkaters ?? [];
+  const goalies = game.leafsGoalies ?? [];
+  if (skaters.length === 0 && goalies.length === 0) return null;
+
+  return (
+    <div className="mt-4 border-t border-slate-200 pt-4">
+      {skaters.length > 0 && (
+        <div>
+          <div className="grid grid-cols-[minmax(0,1fr)_24px_24px_24px] gap-1 border-b border-slate-200 pb-2 text-[10px] font-bold uppercase text-slate-500">
+            <span>Leafs scoring</span>
+            <span className="text-right">G</span>
+            <span className="text-right">A</span>
+            <span className="text-right">P</span>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {skaters.map((skater) => (
+              <div key={skater.id} className="grid grid-cols-[minmax(0,1fr)_24px_24px_24px] gap-1 py-2 text-xs">
+                <span className="truncate font-bold text-brand">{skater.name}</span>
+                <span className="text-right tabular-nums text-slate-600">{skater.goals}</span>
+                <span className="text-right tabular-nums text-slate-600">{skater.assists}</span>
+                <span className="text-right font-bold tabular-nums text-brand">{skater.points}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {goalies.length > 0 && (
+        <div className={skaters.length > 0 ? 'mt-3' : ''}>
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leafs goaltending</p>
+          {goalies.map((goalie) => (
+            <div key={goalie.id} className="flex items-center justify-between gap-3 py-1 text-xs">
+              <span className="font-bold text-brand">{goalie.name}</span>
+              <span className="font-bold tabular-nums text-brand">
+                {goalie.savePercentage == null ? 'SV% —' : `SV% ${goalie.savePercentage.toFixed(3).replace(/^0/, '')}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
   const { lastGame, nextGame, projectedLineup } = data;
   if (!lastGame && !nextGame) return null;
@@ -79,6 +124,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
           {lastGame.resultType && lastGame.resultType !== 'REG' && (
             <p className="mt-1 text-right text-[10px] font-bold uppercase text-slate-500">Final / {lastGame.resultType}</p>
           )}
+          <LastGameLeafsStats game={lastGame} />
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
             <ExternalLink href={lastGame.boxScoreUrl}>Box score</ExternalLink>
             {lastGame.condensedGameUrl && <ExternalLink href={lastGame.condensedGameUrl}>NHL condensed game</ExternalLink>}
