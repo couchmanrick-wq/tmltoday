@@ -142,7 +142,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
         {nextGame && (
         <div className="py-4">
           <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
-          <p className="mt-2 text-xl font-bold leading-tight text-brand">
+          <p className="mt-2 text-sm font-bold leading-tight text-brand">
             {nextGame.away.name} <span className="text-slate-400">at</span> {nextGame.home.name}
           </p>
           <p className="mt-1 text-sm font-bold text-brand">
