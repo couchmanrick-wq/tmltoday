@@ -20,7 +20,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="font-bold text-blue-600 hover:text-blue-800"
+      className="font-bold text-blue-500 hover:text-blue-700"
     >
       {children}
     </a>
@@ -60,7 +60,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
 
   if (!hasStats) {
     return (
-      <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 text-xs font-bold text-blue-600">
+      <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 text-xs font-bold text-blue-500">
         <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
         {game.condensedGameUrl && <><span aria-hidden="true">•</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
       </div>
@@ -69,7 +69,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
 
   return (
     <details className="group mt-4 pt-4">
-      <summary className="cursor-pointer list-none text-xs font-bold text-blue-600 marker:hidden hover:text-blue-800">
+      <summary className="cursor-pointer list-none text-xs font-bold text-blue-500 marker:hidden hover:text-blue-700">
         <span className="flex flex-wrap items-center gap-2">
           <span>Leafs Scoring</span>
           <span aria-hidden="true">•</span>
@@ -159,7 +159,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
           </dl>
           {projectedLineup && (
             <details className="group mt-3">
-              <summary className="cursor-pointer list-none text-xs font-bold text-blue-600 marker:hidden hover:text-blue-800">
+              <summary className="cursor-pointer list-none text-xs font-bold text-blue-500 marker:hidden hover:text-blue-700">
                 <span className="flex flex-wrap items-center gap-2">
                   <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
                   <span aria-hidden="true">•</span>
