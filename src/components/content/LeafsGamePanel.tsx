@@ -61,6 +61,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
   if (!hasStats) {
     return (
       <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 text-xs font-bold text-blue-500">
+        <span aria-hidden="true">→</span>
         <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
         {game.condensedGameUrl && <><span aria-hidden="true">•</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
       </div>
@@ -71,6 +72,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
     <details className="group mt-4 pt-4">
       <summary className="cursor-pointer list-none text-xs font-bold text-blue-500 marker:hidden hover:text-blue-700">
         <span className="flex flex-wrap items-center gap-2">
+          <span aria-hidden="true">→</span>
           <span>Leafs Scoring</span>
           <span aria-hidden="true">•</span>
           <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
@@ -161,6 +163,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <details className="group mt-3">
               <summary className="cursor-pointer list-none text-xs font-bold text-blue-500 marker:hidden hover:text-blue-700">
                 <span className="flex flex-wrap items-center gap-2">
+                  <span aria-hidden="true">→</span>
                   <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
                   <span aria-hidden="true">•</span>
                   <span>Expected Lines</span>
@@ -180,7 +183,10 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             </details>
           )}
           {!projectedLineup && (
-            <div className="mt-3 text-xs"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
+            <div className="mt-3 flex items-center gap-2 text-xs text-blue-500">
+              <span aria-hidden="true">→</span>
+              <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
+            </div>
           )}
         </div>
         )}
