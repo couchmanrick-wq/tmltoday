@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { LeafsGamePanelData } from '@/lib/leafs-game';
 
 const torontoDate = new Intl.DateTimeFormat('en-CA', {
@@ -16,6 +19,28 @@ const torontoTime = new Intl.DateTimeFormat('en-CA', {
 
 const leafsOddsUrl = 'https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs';
 const gameDiscussionUrl = 'https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/';
+
+function periodLabel(game: NonNullable<LeafsGamePanelData['lastGame']>) {
+  if (game.periodType === 'SO') return 'SO';
+  if (game.periodType === 'OT' || (game.periodNumber ?? 0) > 3) return 'OT';
+  if (game.periodNumber === 1) return '1st';
+  if (game.periodNumber === 2) return '2nd';
+  if (game.periodNumber === 3) return '3rd';
+  return 'In progress';
+}
+
+function gameStatus(game: NonNullable<LeafsGamePanelData['lastGame']>) {
+  if (game.isLive) {
+    const period = periodLabel(game);
+    return game.inIntermission
+      ? `Live • Intermission • ${period}`
+      : `Live • ${period} • ${game.timeRemaining ?? 'In progress'}`;
+  }
+
+  return game.resultType && game.resultType !== 'REG'
+    ? `Final / ${game.resultType}`
+    : 'Final';
+}
 
 function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -123,23 +148,52 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
 }
 
 export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
-  const { lastGame, nextGame, projectedLineup } = data;
+  const [panelData, setPanelData] = useState(data);
+
+  useEffect(() => {
+    let active = true;
+    let requestInFlight = false;
+
+    async function refreshGameData() {
+      if (requestInFlight) return;
+      requestInFlight = true;
+      try {
+        const response = await fetch('/api/leafs-game', { cache: 'no-store' });
+        if (!response.ok) return;
+        const refreshedData = await response.json() as LeafsGamePanelData;
+        if (active) setPanelData(refreshedData);
+      } catch {
+        // Keep the last successful snapshot visible when the live feed is unavailable.
+      } finally {
+        requestInFlight = false;
+      }
+    }
+
+    void refreshGameData();
+    const interval = window.setInterval(() => void refreshGameData(), 30_000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const { lastGame, nextGame, projectedLineup } = panelData;
   if (!lastGame && !nextGame) return null;
 
   return (
     <section aria-label="Leafs game centre" className="border-t-4 border-brand">
       <div className="divide-y divide-slate-300">
         {lastGame && (
-        <div className="py-4">
+        <div className="py-4" aria-live={lastGame.isLive ? 'polite' : undefined}>
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-base font-bold uppercase tracking-wide text-red-600">Latest game</p>
             <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(lastGame.startsAt))}</p>
           </div>
           <TeamScore {...lastGame.away} />
           <TeamScore {...lastGame.home} />
-          {lastGame.resultType && lastGame.resultType !== 'REG' && (
-            <p className="mt-1 text-right text-[10px] font-bold uppercase text-slate-500">Final / {lastGame.resultType}</p>
-          )}
+          <p className={`mt-1 text-right text-[10px] font-bold uppercase ${lastGame.isLive ? 'text-red-600' : 'text-slate-500'}`}>
+            {gameStatus(lastGame)}
+          </p>
           <LastGameLeafsStats game={lastGame} />
         </div>
         )}

@@ -46,6 +46,18 @@ interface NhlGame {
   gameCenterLink?: string;
 }
 
+interface NhlGameClock {
+  timeRemaining?: string;
+  secondsRemaining?: number;
+  running?: boolean;
+  inIntermission?: boolean;
+}
+
+interface NhlPeriodDescriptor {
+  number?: number;
+  periodType?: string;
+}
+
 interface NhlSkaterGameStat {
   playerId: number;
   name?: { default?: string };
@@ -67,6 +79,15 @@ interface NhlTeamGameStats {
   forwards?: NhlSkaterGameStat[];
   defense?: NhlSkaterGameStat[];
   goalies?: NhlGoalieGameStat[];
+}
+
+interface NhlBoxscore {
+  gameState?: string;
+  clock?: NhlGameClock;
+  periodDescriptor?: NhlPeriodDescriptor;
+  awayTeam?: NhlTeam;
+  homeTeam?: NhlTeam;
+  playerByGameStats?: { awayTeam?: NhlTeamGameStats; homeTeam?: NhlTeamGameStats };
 }
 
 interface NhlRosterPlayer {
@@ -102,6 +123,11 @@ export interface GameSummary {
   condensedGameUrl?: string;
   leafsSkaters?: LeafsSkaterGameStat[];
   leafsGoalies?: LeafsGoalieGameStat[];
+  isLive?: boolean;
+  timeRemaining?: string;
+  inIntermission?: boolean;
+  periodNumber?: number;
+  periodType?: string;
 }
 
 export interface ProjectedLineup {
@@ -124,9 +150,11 @@ const teamName = (team: NhlTeam) =>
 
 function toGameSummary(
   game: NhlGame,
-  leafsStats?: { skaters: LeafsSkaterGameStat[]; goalies: LeafsGoalieGameStat[] }
+  leafsStats?: { skaters: LeafsSkaterGameStat[]; goalies: LeafsGoalieGameStat[] },
+  liveBoxscore?: NhlBoxscore,
 ): GameSummary {
   const torontoTeam = game.awayTeam.abbrev === 'TOR' ? game.awayTeam : game.homeTeam;
+  const gameState = liveBoxscore?.gameState ?? game.gameState;
   const canadianNetworks = (game.tvBroadcasts ?? [])
     .filter((broadcast) => broadcast.countryCode === 'CA')
     .map((broadcast) => broadcast.network)
@@ -142,12 +170,12 @@ function toGameSummary(
     away: {
       abbrev: game.awayTeam.abbrev ?? 'AWAY',
       name: teamName(game.awayTeam),
-      score: game.awayTeam.score,
+      score: liveBoxscore?.awayTeam?.score ?? game.awayTeam.score,
     },
     home: {
       abbrev: game.homeTeam.abbrev ?? 'HOME',
       name: teamName(game.homeTeam),
-      score: game.homeTeam.score,
+      score: liveBoxscore?.homeTeam?.score ?? game.homeTeam.score,
     },
     resultType: game.gameOutcome?.lastPeriodType,
     tv: [...new Set(canadianNetworks.length > 0 ? canadianNetworks : allNetworks)],
@@ -156,20 +184,33 @@ function toGameSummary(
     condensedGameUrl: game.condensedGame ? `${NHL_SITE}${game.condensedGame}` : undefined,
     leafsSkaters: leafsStats?.skaters,
     leafsGoalies: leafsStats?.goalies,
+    isLive: gameState === 'LIVE' || gameState === 'CRIT',
+    timeRemaining: liveBoxscore?.clock?.timeRemaining,
+    inIntermission: liveBoxscore?.clock?.inIntermission,
+    periodNumber: liveBoxscore?.periodDescriptor?.number,
+    periodType: liveBoxscore?.periodDescriptor?.periodType,
   };
 }
 
-async function getLeafsBoxscoreStats(game: NhlGame) {
+async function getNhlBoxscore(gameId: number, fresh = false): Promise<NhlBoxscore | undefined> {
   try {
-    const [boxscoreResponse, rosterResponse] = await Promise.all([
-      fetch(`${NHL_API}/gamecenter/${game.id}/boxscore`, { next: { revalidate: 300 } }),
+    const response = await fetch(
+      `${NHL_API}/gamecenter/${gameId}/boxscore`,
+      fresh ? { cache: 'no-store' } : { next: { revalidate: 300 } },
+    );
+    return response.ok ? await response.json() as NhlBoxscore : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function getLeafsBoxscoreStats(game: NhlGame, suppliedBoxscore?: NhlBoxscore) {
+  try {
+    const [boxscore, rosterResponse] = await Promise.all([
+      suppliedBoxscore ? Promise.resolve(suppliedBoxscore) : getNhlBoxscore(game.id),
       fetch(`${NHL_API}/roster/TOR/current`, { next: { revalidate: 3600 } }),
     ]);
-    if (!boxscoreResponse.ok) return undefined;
-
-    const boxscore = await boxscoreResponse.json() as {
-      playerByGameStats?: { awayTeam?: NhlTeamGameStats; homeTeam?: NhlTeamGameStats };
-    };
+    if (!boxscore) return undefined;
     const roster = rosterResponse.ok
       ? await rosterResponse.json() as Record<'forwards' | 'defensemen' | 'goalies', NhlRosterPlayer[]>
       : { forwards: [], defensemen: [], goalies: [] };
@@ -252,9 +293,12 @@ async function getProjectedLineup(): Promise<ProjectedLineup | undefined> {
   }
 }
 
-export async function getLeafsGamePanel(): Promise<LeafsGamePanelData> {
+export async function getLeafsGamePanel({ fresh = false }: { fresh?: boolean } = {}): Promise<LeafsGamePanelData> {
   const [scheduleResult, projectedLineup] = await Promise.all([
-    fetch(`${NHL_API}/club-schedule-season/TOR/now`, { next: { revalidate: 300 } })
+    fetch(
+      `${NHL_API}/club-schedule-season/TOR/now`,
+      fresh ? { cache: 'no-store' } : { next: { revalidate: 300 } },
+    )
       .then(async (response) => response.ok ? (await response.json()) as { games?: NhlGame[] } : { games: [] })
       .catch(() => ({ games: [] as NhlGame[] })),
     getProjectedLineup(),
@@ -265,14 +309,20 @@ export async function getLeafsGamePanel(): Promise<LeafsGamePanelData> {
   const completed = games
     .filter((game) => ['OFF', 'FINAL'].includes(game.gameState ?? '') && Date.parse(game.startTimeUTC) <= now)
     .sort((a, b) => Date.parse(b.startTimeUTC) - Date.parse(a.startTimeUTC));
+  const liveGames = games
+    .filter((game) => ['LIVE', 'CRIT'].includes(game.gameState ?? ''))
+    .sort((a, b) => Date.parse(b.startTimeUTC) - Date.parse(a.startTimeUTC));
+  const liveGame = liveGames[0];
+  const upcomingCutoff = liveGame ? Date.parse(liveGame.startTimeUTC) : now - (6 * 60 * 60 * 1000);
   const upcoming = games
-    .filter((game) => !['OFF', 'FINAL'].includes(game.gameState ?? '') && Date.parse(game.startTimeUTC) >= now)
+    .filter((game) => ['FUT', 'PRE'].includes(game.gameState ?? '') && Date.parse(game.startTimeUTC) >= upcomingCutoff)
     .sort((a, b) => Date.parse(a.startTimeUTC) - Date.parse(b.startTimeUTC));
-  const lastGame = completed[0];
-  const lastGameStats = lastGame ? await getLeafsBoxscoreStats(lastGame) : undefined;
+  const lastGame = liveGame ?? completed[0];
+  const liveBoxscore = liveGame ? await getNhlBoxscore(liveGame.id, true) : undefined;
+  const lastGameStats = lastGame ? await getLeafsBoxscoreStats(lastGame, liveBoxscore) : undefined;
 
   return {
-    lastGame: lastGame ? toGameSummary(lastGame, lastGameStats) : undefined,
+    lastGame: lastGame ? toGameSummary(lastGame, lastGameStats, liveBoxscore) : undefined,
     nextGame: upcoming[0] ? toGameSummary(upcoming[0]) : undefined,
     projectedLineup,
   };
