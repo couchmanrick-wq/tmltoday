@@ -70,11 +70,28 @@ function summarize(article: NewsArticle, topic: StoryTopic, players: string[]) {
   const source = article.source ? `${article.source} reports` : 'A new report says';
   const description = stripHtml(article.description).replace(/\s+/g, ' ').trim();
   const base = description || article.title;
-  const summary = `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${trimToSentence(base, MAX_SUMMARY_SOURCE_LENGTH)}`;
+  const excerpt = trimToSentence(base, MAX_SUMMARY_SOURCE_LENGTH);
+  const addedContext = base.length < 180 ? ` ${shortSourceContext(article.contentType, topic, subject)}` : '';
+  const summary = `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${excerpt}${addedContext}`;
 
   // The lead-in is built from source/topic/player names, so it has no fixed width — cap the whole
   // summary rather than trusting the cap on the description alone.
   return trimToSentence(summary, MAX_SUMMARY_LENGTH);
+}
+
+function shortSourceContext(contentType: NewsArticle['contentType'], topic: StoryTopic, subject: string) {
+  const focus = subject === 'the Maple Leafs' ? 'the team' : subject;
+  const topicLabel = topic.replace('-', ' ');
+
+  if (contentType === 'video') {
+    return `The video provides the original footage and comments behind this ${topicLabel} update, giving viewers more context on ${focus}.`;
+  }
+
+  if (contentType === 'podcast') {
+    return `The full episode expands on this ${topicLabel} discussion with the source's original analysis and context about ${focus}.`;
+  }
+
+  return `The original report provides further detail and context on this ${topicLabel} development and the people or events involved.`;
 }
 
 function generateTakeaways(
