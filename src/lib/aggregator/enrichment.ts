@@ -62,14 +62,15 @@ export function enrichArticles(articles: NewsArticle[]) {
   return enriched.sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0));
 }
 
-const MAX_SUMMARY_LENGTH = 300;
+const MAX_SUMMARY_LENGTH = 600;
+const MAX_SUMMARY_SOURCE_LENGTH = 360;
 
 function summarize(article: NewsArticle, topic: StoryTopic, players: string[]) {
   const subject = players.length > 0 ? players.slice(0, 2).join(' and ') : 'the Maple Leafs';
   const source = article.source ? `${article.source} reports` : 'A new report says';
   const description = stripHtml(article.description).replace(/\s+/g, ' ').trim();
   const base = description || article.title;
-  const summary = `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${trimToSentence(base, 180)}`;
+  const summary = `${source} on ${topic.replace('-', ' ')} involving ${subject}. ${trimToSentence(base, MAX_SUMMARY_SOURCE_LENGTH)}`;
 
   // The lead-in is built from source/topic/player names, so it has no fixed width — cap the whole
   // summary rather than trusting the cap on the description alone.
