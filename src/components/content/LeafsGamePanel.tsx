@@ -209,7 +209,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
         )}
 
         {nextGame && (
-        <div className="border-t-4 border-brand py-4">
+        <div className="mt-3 border-t-4 border-brand py-4">
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
             <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(nextGame.startsAt))}</p>
