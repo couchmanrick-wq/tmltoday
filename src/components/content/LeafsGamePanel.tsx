@@ -122,12 +122,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
   if (!lastGame && !nextGame) return null;
 
   return (
-    <section aria-labelledby="leafs-game-panel" className="border-t-4 border-brand pt-5">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 id="leafs-game-panel" className="text-2xl font-bold leading-tight text-brand">Leafs game centre</h2>
-        <span className="rounded bg-blue-100 px-2 py-1 text-[10px] font-bold uppercase text-blue-700">Next / Last</span>
-      </div>
-
+    <section aria-label="Leafs game centre" className="border-t-4 border-brand">
       <div className="divide-y divide-slate-300">
         {lastGame && (
         <div className="py-4">
