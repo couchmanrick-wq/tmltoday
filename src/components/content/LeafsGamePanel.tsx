@@ -14,6 +14,8 @@ const torontoTime = new Intl.DateTimeFormat('en-CA', {
   timeZoneName: 'short',
 });
 
+const nhlOddsUrl = 'https://www.covers.com/sport/hockey/nhl/odds';
+
 function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a
@@ -167,6 +169,8 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
                   <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
                   <span aria-hidden="true">•</span>
                   <span>Expected Lines</span>
+                  <span aria-hidden="true">•</span>
+                  <ExternalLink href={nhlOddsUrl}>Game Odds</ExternalLink>
                 </span>
               </summary>
               <div className="mt-4 space-y-4">
@@ -186,6 +190,8 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <div className="mt-3 flex items-center gap-2 text-xs text-blue-500">
               <span aria-hidden="true">→</span>
               <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
+              <span aria-hidden="true">•</span>
+              <ExternalLink href={nhlOddsUrl}>Game Odds</ExternalLink>
             </div>
           )}
         </div>
