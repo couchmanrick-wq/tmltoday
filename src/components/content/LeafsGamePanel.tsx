@@ -62,11 +62,18 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
   if (skaters.length === 0 && goalies.length === 0) return null;
 
   return (
-    <div className="mt-4 border-t border-slate-200 pt-4">
-      {skaters.length > 0 && (
-        <div>
+    <details className="group mt-4 border-t border-slate-200 pt-4">
+      <summary className="cursor-pointer list-none text-sm font-bold text-blue-600 marker:hidden hover:text-blue-800">
+        <span className="flex items-center justify-between">
+          Leafs scoring
+          <span aria-hidden="true" className="transition-transform group-open:rotate-45">+</span>
+        </span>
+      </summary>
+      <div className="mt-3">
+        {skaters.length > 0 && (
+          <div>
           <div className="grid grid-cols-[minmax(0,1fr)_24px_24px_24px] gap-1 border-b border-slate-200 pb-2 text-[10px] font-bold uppercase text-slate-500">
-            <span>Leafs scoring</span>
+            <span>Player</span>
             <span className="text-right">G</span>
             <span className="text-right">A</span>
             <span className="text-right">P</span>
@@ -81,23 +88,24 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
               </div>
             ))}
           </div>
-        </div>
-      )}
+          </div>
+        )}
 
-      {goalies.length > 0 && (
-        <div className={skaters.length > 0 ? 'mt-3' : ''}>
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leafs goaltending</p>
-          {goalies.map((goalie) => (
-            <div key={goalie.id} className="flex items-center justify-between gap-3 py-1 text-xs">
-              <span className="font-bold text-brand">{goalie.name}</span>
-              <span className="font-bold tabular-nums text-brand">
-                {goalie.savePercentage == null ? 'SV% —' : `SV% ${goalie.savePercentage.toFixed(3).replace(/^0/, '')}`}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+        {goalies.length > 0 && (
+          <div className={skaters.length > 0 ? 'mt-3' : ''}>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leafs goaltending</p>
+            {goalies.map((goalie) => (
+              <div key={goalie.id} className="flex items-center justify-between gap-3 py-1 text-xs">
+                <span className="font-bold text-brand">{goalie.name}</span>
+                <span className="font-bold tabular-nums text-brand">
+                  {goalie.savePercentage == null ? 'SV% —' : `SV% ${goalie.savePercentage.toFixed(3).replace(/^0/, '')}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </details>
   );
 }
 
