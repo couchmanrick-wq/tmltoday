@@ -127,7 +127,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
           <LastGameLeafsStats game={lastGame} />
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
             <ExternalLink href={lastGame.boxScoreUrl}>Box score</ExternalLink>
-            {lastGame.condensedGameUrl && <ExternalLink href={lastGame.condensedGameUrl}>NHL condensed game</ExternalLink>}
+            {lastGame.condensedGameUrl && <ExternalLink href={lastGame.condensedGameUrl}>NHL condensed game video</ExternalLink>}
           </div>
         </div>
         )}
