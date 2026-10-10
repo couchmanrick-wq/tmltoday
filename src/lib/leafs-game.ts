@@ -4,6 +4,26 @@ const NHL_API = 'https://api-web.nhle.com/v1';
 const NHL_SITE = 'https://www.nhl.com';
 const LINEUP_URL = 'https://www.dailyfaceoff.com/teams/toronto-maple-leafs/line-combinations';
 
+// Kept as a last-known-good snapshot so a publisher-side bot challenge never removes the lineup
+// from the homepage. A successful refresh from Daily Faceoff replaces this automatically.
+const LAST_KNOWN_LINEUP: ProjectedLineup = {
+  forwards: [
+    ['Kirill Marchenko', 'Auston Matthews', 'Jack Roslovic'],
+    ['Easton Cowan', 'Nick Paul', 'William Nylander'],
+    ['Gavin McKenna', 'Colton Sissons', 'Bo Groulx'],
+    ['Zack MacEwen', 'Teddy Blueger', 'Brandon Duhaime'],
+  ],
+  defense: [
+    ['Jake McCabe', 'Darren Raddysh'],
+    ['Morgan Rielly', 'Chris Tanev'],
+    ['Oliver Ekman-Larsson', 'Troy Stecher'],
+  ],
+  goalies: ['Anthony Stolarz', 'Sergei Bobrovsky'],
+  updatedAt: '2026-10-09T19:47:25.524Z',
+  sourceName: 'Mark Masters',
+  sourceUrl: LINEUP_URL,
+};
+
 interface NhlTeam {
   abbrev?: string;
   commonName?: { default?: string };
@@ -103,13 +123,13 @@ function namesFromRows(heading: Element | null): string[][] {
 async function getProjectedLineup(): Promise<ProjectedLineup | undefined> {
   try {
     const response = await fetch(LINEUP_URL, { next: { revalidate: 1800 } });
-    if (!response.ok) return undefined;
+    if (!response.ok) return LAST_KNOWN_LINEUP;
 
     const { document } = parseHTML(await response.text());
     const forwards = namesFromRows(document.getElementById('forwards'));
     const defense = namesFromRows(document.getElementById('defense'));
     const goalies = namesFromRows(document.getElementById('goalies')).flat();
-    if (forwards.length === 0 && defense.length === 0 && goalies.length === 0) return undefined;
+    if (forwards.length === 0 && defense.length === 0 && goalies.length === 0) return LAST_KNOWN_LINEUP;
 
     const updatedLabel = [...document.querySelectorAll('span')]
       .find((element) => element.textContent?.trim() === 'Last updated:')
@@ -127,7 +147,7 @@ async function getProjectedLineup(): Promise<ProjectedLineup | undefined> {
       sourceUrl: LINEUP_URL,
     };
   } catch {
-    return undefined;
+    return LAST_KNOWN_LINEUP;
   }
 }
 
