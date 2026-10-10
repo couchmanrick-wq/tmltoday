@@ -105,7 +105,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
             Original Source
           </a>
 
-          <MetaBox title="Player Tags" items={story.players ?? []} />
+          <MetaBox title="Player & Management Tags" items={[...(story.players ?? []), ...(story.coaches ?? [])]} />
           <MetaBox title="Tags" items={story.tags ?? []} />
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

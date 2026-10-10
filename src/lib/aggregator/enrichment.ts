@@ -1,8 +1,6 @@
-import { LEAFS_ROSTER } from '@/data/teams';
+import { detectLeafsPeople } from '@/data/leafs-people';
 import { NewsArticle, Sentiment, StoryTopic } from '@/types';
 import { getSourceByName } from './sources';
-
-const COACHES = ['Craig Berube', 'Lane Lambert', 'Marc Savard', 'Mike Van Ryn', 'Curtis Sanford'];
 
 const TOPIC_RULES: Array<{ topic: StoryTopic; terms: string[] }> = [
   { topic: 'breaking', terms: ['breaking', 'announces', 'official', 'confirmed'] },
@@ -24,8 +22,9 @@ const GAME_RECAP_TERMS = ['condensed game', 'nhl highlights:', 'game recap'];
 export function enrichArticle(article: NewsArticle, existing: NewsArticle[] = []): NewsArticle {
   const text = normalizeText(`${article.title} ${article.description}`);
   const sourceProfile = getSourceByName(article.source);
-  const players = LEAFS_ROSTER.filter((player) => text.includes(player.name.toLowerCase())).map((player) => player.name);
-  const coaches = COACHES.filter((coach) => text.includes(coach.toLowerCase()));
+  const people = detectLeafsPeople(`${article.title} ${article.description}`);
+  const players = people.players;
+  const coaches = people.management;
   const topic = classifyTopic(text, article.contentType);
   const isRumour = Boolean(sourceProfile?.rumourFocused) || topic === 'rumour' || RUMOUR_TERMS.some((term) => text.includes(term));
   const rumourConfidence = isRumour ? scoreRumourConfidence(text, article.source) : 0;
@@ -104,7 +103,7 @@ function generateTakeaways(
   const takeaways = [`Topic classified as ${titleCase(topic)}.`];
 
   if (players.length > 0) takeaways.push(`Players mentioned: ${players.slice(0, 4).join(', ')}.`);
-  if (coaches.length > 0) takeaways.push(`Coaches mentioned: ${coaches.join(', ')}.`);
+  if (coaches.length > 0) takeaways.push(`Team personnel mentioned: ${coaches.join(', ')}.`);
   if (isRumour) takeaways.push('Treat as a rumour until confirmed by an official or primary source.');
   takeaways.push(`Source: ${article.source}.`);
 
@@ -151,7 +150,7 @@ function generateTags(
   players.forEach((player) => tags.add(player));
   coaches.forEach((coach) => tags.add(coach));
 
-  return Array.from(tags).slice(0, 10);
+  return Array.from(tags).slice(0, 20);
 }
 
 function findDuplicate(article: NewsArticle, existing: NewsArticle[]) {

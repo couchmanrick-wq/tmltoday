@@ -1,5 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { NewsArticle, NewsroomFeed } from '@/types';
+import { mergeDetectedPeople } from '@/data/leafs-people';
 
 interface EnrichedContentRow {
   id: string;
@@ -271,6 +272,13 @@ export async function saveEnrichedArticles(articles: NewsArticle[]) {
 }
 
 function rowToArticle(row: EnrichedContentRow): NewsArticle {
+  const people = mergeDetectedPeople(
+    `${row.title} ${row.description}`,
+    parseJsonArray(row.players),
+    parseJsonArray(row.coaches)
+  );
+  const tags = [...new Set([...parseJsonArray(row.tags), ...people.players, ...people.management])];
+
   return {
     id: row.id,
     title: row.title,
@@ -285,13 +293,13 @@ function rowToArticle(row: EnrichedContentRow): NewsArticle {
     author: row.author ?? undefined,
     aiSummary: row.ai_summary ?? undefined,
     keyTakeaways: parseJsonArray(row.key_takeaways),
-    players: parseJsonArray(row.players),
-    coaches: parseJsonArray(row.coaches),
+    players: people.players,
+    coaches: people.management,
     topic: row.topic ?? undefined,
     isRumour: Boolean(row.is_rumour),
     rumourConfidence: row.rumour_confidence ?? undefined,
     sentiment: row.sentiment ?? undefined,
-    tags: parseJsonArray(row.tags),
+    tags,
     duplicateOf: row.duplicate_of,
     importance: row.importance ?? undefined,
   };
