@@ -2,6 +2,7 @@ import { parseHTML } from 'linkedom';
 
 const NHL_API = 'https://api-web.nhle.com/v1';
 const NHL_SITE = 'https://www.nhl.com';
+const LEAFS_RADIO_URL = 'https://www.sportsnet.ca/590/';
 const LINEUP_URL = 'https://www.dailyfaceoff.com/teams/toronto-maple-leafs/line-combinations';
 
 // Kept as a last-known-good snapshot so a publisher-side bot challenge never removes the lineup
@@ -150,7 +151,7 @@ function toGameSummary(
     },
     resultType: game.gameOutcome?.lastPeriodType,
     tv: [...new Set(canadianNetworks.length > 0 ? canadianNetworks : allNetworks)],
-    radioUrl: torontoTeam.radioLink,
+    radioUrl: torontoTeam.radioLink ? LEAFS_RADIO_URL : undefined,
     boxScoreUrl: game.gameCenterLink ? `${NHL_SITE}${game.gameCenterLink}` : `${NHL_SITE}/gamecenter/${game.id}`,
     condensedGameUrl: game.condensedGame ? `${NHL_SITE}${game.condensedGame}` : undefined,
     leafsSkaters: leafsStats?.skaters,

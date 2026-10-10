@@ -147,7 +147,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <dt className="font-bold uppercase text-slate-500">TV</dt>
             <dd className="font-semibold text-slate-700">{nextGame.tv.join(', ') || 'TBA'}</dd>
             <dt className="font-bold uppercase text-slate-500">Radio</dt>
-            <dd>{nextGame.radioUrl ? <ExternalLink href={nextGame.radioUrl}>Leafs radio stream</ExternalLink> : <span className="font-semibold text-slate-700">TBA</span>}</dd>
+            <dd>{nextGame.radioUrl ? <ExternalLink href={nextGame.radioUrl}>Listen Live</ExternalLink> : <span className="font-semibold text-slate-700">TBA</span>}</dd>
           </dl>
           <div className="mt-3 text-xs"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
 
