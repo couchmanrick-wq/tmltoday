@@ -14,7 +14,8 @@ const torontoTime = new Intl.DateTimeFormat('en-CA', {
   timeZoneName: 'short',
 });
 
-const nhlOddsUrl = 'https://www.covers.com/sport/hockey/nhl/odds';
+const leafsOddsUrl = 'https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs';
+const gameDiscussionUrl = 'https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/';
 
 function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -170,7 +171,9 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
                   <span aria-hidden="true">•</span>
                   <span>Expected Lines</span>
                   <span aria-hidden="true">•</span>
-                  <ExternalLink href={nhlOddsUrl}>Game Odds</ExternalLink>
+                  <ExternalLink href={leafsOddsUrl}>Odds</ExternalLink>
+                  <span aria-hidden="true">•</span>
+                  <ExternalLink href={gameDiscussionUrl}>Discussion</ExternalLink>
                 </span>
               </summary>
               <div className="mt-4 space-y-4">
@@ -191,7 +194,9 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
               <span aria-hidden="true">→</span>
               <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
               <span aria-hidden="true">•</span>
-              <ExternalLink href={nhlOddsUrl}>Game Odds</ExternalLink>
+              <ExternalLink href={leafsOddsUrl}>Odds</ExternalLink>
+              <span aria-hidden="true">•</span>
+              <ExternalLink href={gameDiscussionUrl}>Discussion</ExternalLink>
             </div>
           )}
         </div>
