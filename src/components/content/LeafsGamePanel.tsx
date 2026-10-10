@@ -164,13 +164,15 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <dt className="font-bold uppercase text-slate-500">Radio</dt>
             <dd>{nextGame.radioUrl ? <ExternalLink href={nextGame.radioUrl}>Listen Live</ExternalLink> : <span className="font-semibold text-slate-700">TBA</span>}</dd>
           </dl>
-          <div className="mt-3 text-xs"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
-
           {projectedLineup && (
-            <details className="group mt-5 border-t border-slate-200 pt-4" open>
+            <details className="group mt-3" open>
               <summary className="cursor-pointer list-none text-sm font-bold text-brand marker:hidden">
                 <span className="flex items-center justify-between">
-                  Expected lines
+                  <span className="flex flex-wrap items-center gap-2">
+                    <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
+                    <span aria-hidden="true">•</span>
+                    <span>Expected Lines</span>
+                  </span>
                   <span aria-hidden="true" className="text-blue-600 transition-transform group-open:rotate-45">+</span>
                 </span>
               </summary>
@@ -186,6 +188,9 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
                 </p>
               </div>
             </details>
+          )}
+          {!projectedLineup && (
+            <div className="mt-3 text-sm"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
           )}
         </div>
         )}
