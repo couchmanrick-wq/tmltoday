@@ -27,13 +27,10 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
   );
 }
 
-function TeamScore({ abbrev, name, score }: { abbrev: string; name: string; score?: number }) {
+function TeamScore({ name, score }: { name: string; score?: number }) {
   return (
     <div className="flex items-center justify-between gap-3 py-1">
-      <span className="min-w-0">
-        <span className="mr-2 inline-block w-8 text-xs font-black text-blue-600">{abbrev}</span>
-        <span className="text-sm font-bold text-brand">{name}</span>
-      </span>
+      <span className="min-w-0 text-sm font-bold text-brand">{name}</span>
       <span className="text-2xl font-bold tabular-nums text-brand">{score ?? '-'}</span>
     </div>
   );
@@ -151,7 +148,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
         <div className="py-4">
           <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
           <p className="mt-2 text-xl font-bold leading-tight text-brand">
-            {nextGame.away.abbrev} <span className="text-slate-400">at</span> {nextGame.home.abbrev}
+            {nextGame.away.name} <span className="text-slate-400">at</span> {nextGame.home.name}
           </p>
           <p className="mt-1 text-sm font-bold text-brand">
             {torontoDate.format(new Date(nextGame.startsAt))} at {torontoTime.format(new Date(nextGame.startsAt))}
