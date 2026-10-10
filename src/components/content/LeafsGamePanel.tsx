@@ -165,15 +165,12 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <dd>{nextGame.radioUrl ? <ExternalLink href={nextGame.radioUrl}>Listen Live</ExternalLink> : <span className="font-semibold text-slate-700">TBA</span>}</dd>
           </dl>
           {projectedLineup && (
-            <details className="group mt-3" open>
-              <summary className="cursor-pointer list-none text-sm font-bold text-brand marker:hidden">
-                <span className="flex items-center justify-between">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
-                    <span aria-hidden="true">•</span>
-                    <span>Expected Lines</span>
-                  </span>
-                  <span aria-hidden="true" className="text-blue-600 transition-transform group-open:rotate-45">+</span>
+            <details className="group mt-3">
+              <summary className="cursor-pointer list-none text-xs font-bold text-blue-600 marker:hidden hover:text-blue-800">
+                <span className="flex flex-wrap items-center gap-2">
+                  <ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink>
+                  <span aria-hidden="true">•</span>
+                  <span>Expected Lines</span>
                 </span>
               </summary>
               <div className="mt-4 space-y-4">
@@ -190,7 +187,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             </details>
           )}
           {!projectedLineup && (
-            <div className="mt-3 text-sm"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
+            <div className="mt-3 text-xs"><ExternalLink href={nextGame.boxScoreUrl}>Game centre</ExternalLink></div>
           )}
         </div>
         )}
