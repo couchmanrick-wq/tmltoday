@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTrendingPlayers, playerSlug } from '@/data/teams';
 import { SiteHero } from '@/components/layout/SiteHero';
 import { Pagination } from '@/components/content/Pagination';
+import { LeafsGamePanel } from '@/components/content/LeafsGamePanel';
 import {
   ForumMembersOnline,
   ForumThread,
@@ -11,6 +12,7 @@ import {
 import { FALLBACK_ARTICLES } from '@/lib/fallback-content';
 import { formatTimeAgo, sourceByline } from '@/lib/format';
 import { getRosterStats, statsSeasonLabel } from '@/lib/leafs-stats';
+import { getLeafsGamePanel } from '@/lib/leafs-game';
 import { getArticlePage, parsePageParam } from '@/lib/pagination';
 import { FilterNav } from '@/components/layout/FilterNav';
 import { NewsletterCard } from '@/components/layout/NewsletterCard';
@@ -26,15 +28,18 @@ export default async function HomePage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page } = await searchParams;
-  const feed = await getArticlePage(
-    { orderBy: 'published', excludeDuplicates: true },
-    parsePageParam(page),
-    FALLBACK_ARTICLES
-  );
   const trendingPlayers = getTrendingPlayers();
-  const forumThreads = await getForumThreads(9);
-  const forumSidebar = await getForumSidebarWidgets();
-  const rosterStats = await getRosterStats();
+  const [feed, forumThreads, forumSidebar, rosterStats, gamePanel] = await Promise.all([
+    getArticlePage(
+      { orderBy: 'published', excludeDuplicates: true },
+      parsePageParam(page),
+      FALLBACK_ARTICLES
+    ),
+    getForumThreads(9),
+    getForumSidebarWidgets(),
+    getRosterStats(),
+    getLeafsGamePanel(),
+  ]);
   const latestItems = feed.articles;
   const itemCount = feed.total.toLocaleString();
 
@@ -74,6 +79,8 @@ export default async function HomePage({
         </main>
 
         <aside className="min-w-0 space-y-10">
+          <LeafsGamePanel data={gamePanel} />
+
           <SearchBox />
 
           <NewsletterCard />
