@@ -116,7 +116,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
         {lastGame && (
         <div className="py-4">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Last game</p>
+            <p className="text-base font-bold uppercase tracking-wide text-red-600">Latest game</p>
             <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(lastGame.startsAt))}</p>
           </div>
           <TeamScore {...lastGame.away} />
@@ -134,7 +134,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
 
         {nextGame && (
         <div className="py-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Next game</p>
+          <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
           <p className="mt-2 text-xl font-bold leading-tight text-brand">
             {nextGame.away.abbrev} <span className="text-slate-400">at</span> {nextGame.home.abbrev}
           </p>
