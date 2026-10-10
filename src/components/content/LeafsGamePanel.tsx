@@ -63,7 +63,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
 
   if (!hasStats) {
     return (
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs font-bold text-blue-600">
+      <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 text-xs font-bold text-blue-600">
         <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
         {game.condensedGameUrl && <><span aria-hidden="true">•</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
       </div>
@@ -71,7 +71,7 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
   }
 
   return (
-    <details className="group mt-4 border-t border-slate-200 pt-4">
+    <details className="group mt-4 pt-4">
       <summary className="cursor-pointer list-none text-xs font-bold text-blue-600 marker:hidden hover:text-blue-800">
         <span className="flex flex-wrap items-center gap-2">
           <span>Leafs Scoring</span>
