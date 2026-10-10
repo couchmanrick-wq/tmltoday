@@ -191,10 +191,10 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
   if (!lastGame && !nextGame) return null;
 
   return (
-    <section aria-label="Leafs game centre" className="border-t-4 border-brand">
-      <div className="divide-y divide-slate-300">
+    <section aria-label="Leafs game centre">
+      <div>
         {lastGame && (
-        <div className="py-4" aria-live={lastGame.isLive ? 'polite' : undefined}>
+        <div className="border-t-4 border-brand py-4" aria-live={lastGame.isLive ? 'polite' : undefined}>
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-base font-bold uppercase tracking-wide text-red-600">Latest game</p>
             <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(lastGame.startsAt))}</p>
@@ -209,7 +209,7 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
         )}
 
         {nextGame && (
-        <div className="py-4">
+        <div className="border-t-4 border-brand py-4">
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
             <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(nextGame.startsAt))}</p>
