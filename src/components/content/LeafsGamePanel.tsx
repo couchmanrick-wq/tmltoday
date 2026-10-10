@@ -59,14 +59,25 @@ function LineRows({ title, rows }: { title: string; rows: string[][] }) {
 function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['lastGame']> }) {
   const skaters = game.leafsSkaters ?? [];
   const goalies = game.leafsGoalies ?? [];
-  if (skaters.length === 0 && goalies.length === 0) return null;
+  const hasStats = skaters.length > 0 || goalies.length > 0;
+
+  if (!hasStats) {
+    return (
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs font-bold text-blue-600">
+        <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
+        {game.condensedGameUrl && <><span aria-hidden="true">|</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
+      </div>
+    );
+  }
 
   return (
     <details className="group mt-4 border-t border-slate-200 pt-4">
-      <summary className="cursor-pointer list-none text-sm font-bold text-blue-600 marker:hidden hover:text-blue-800">
-        <span className="flex items-center justify-between">
-          Leafs scoring
-          <span aria-hidden="true" className="transition-transform group-open:rotate-45">+</span>
+      <summary className="cursor-pointer list-none text-xs font-bold text-blue-600 marker:hidden hover:text-blue-800">
+        <span className="flex flex-wrap items-center gap-2">
+          <span>Leafs Scoring</span>
+          <span aria-hidden="true">|</span>
+          <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
+          {game.condensedGameUrl && <><span aria-hidden="true">|</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
         </span>
       </summary>
       <div className="mt-3">
@@ -133,10 +144,6 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
             <p className="mt-1 text-right text-[10px] font-bold uppercase text-slate-500">Final / {lastGame.resultType}</p>
           )}
           <LastGameLeafsStats game={lastGame} />
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
-            <ExternalLink href={lastGame.boxScoreUrl}>Box score</ExternalLink>
-            {lastGame.condensedGameUrl && <ExternalLink href={lastGame.condensedGameUrl}>NHL condensed game video</ExternalLink>}
-          </div>
         </div>
         )}
 
