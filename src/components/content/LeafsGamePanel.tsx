@@ -141,14 +141,15 @@ export function LeafsGamePanel({ data }: { data: LeafsGamePanelData }) {
 
         {nextGame && (
         <div className="py-4">
-          <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
-          <p className="mt-2 text-sm font-bold leading-tight text-brand">
-            {nextGame.away.name} <span className="text-slate-400">at</span> {nextGame.home.name}
-          </p>
-          <p className="mt-1 text-sm font-bold text-brand">
-            {torontoDate.format(new Date(nextGame.startsAt))} at {torontoTime.format(new Date(nextGame.startsAt))}
-          </p>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-base font-bold uppercase tracking-wide text-red-600">Next game</p>
+            <p className="text-xs font-semibold text-slate-500">{torontoDate.format(new Date(nextGame.startsAt))}</p>
+          </div>
+          <TeamScore name={nextGame.away.name} />
+          <TeamScore name={nextGame.home.name} />
           <dl className="mt-3 grid grid-cols-[52px_minmax(0,1fr)] gap-x-2 gap-y-1.5 text-xs leading-5">
+            <dt className="font-bold uppercase text-slate-500">Time</dt>
+            <dd className="font-semibold text-slate-700">{torontoTime.format(new Date(nextGame.startsAt))}</dd>
             <dt className="font-bold uppercase text-slate-500">Arena</dt>
             <dd className="font-semibold text-slate-700">{nextGame.venue}</dd>
             <dt className="font-bold uppercase text-slate-500">TV</dt>
