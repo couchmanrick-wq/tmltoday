@@ -27,11 +27,13 @@ export interface AggregatorSource {
 export const AGGREGATOR_SOURCES: AggregatorSource[] = [
   // Official and major hockey news
   { id: 'nhl-leafs', name: 'Toronto Maple Leafs', kind: 'official', url: 'https://www.nhl.com/mapleleafs/news', contentType: 'article', priority: 100, leafsFocused: true },
+  { id: 'nhl-condensed-leafs', name: 'NHL Condensed Games', kind: 'official', url: 'https://www.nhl.com/video/topic/condensed-games/', contentType: 'video', priority: 96, leafsFocused: true },
   { id: 'nhl', name: 'NHL.com', kind: 'official', url: 'https://www.nhl.com/news', contentType: 'article', priority: 90 },
   { id: 'the-hockey-news', name: 'The Hockey News', kind: 'hockey-site', url: 'https://thehockeynews.com', feedUrl: 'https://thehockeynews.com/rss/THNHOME/full/', contentType: 'article', priority: 82 },
   { id: 'daily-faceoff', name: 'Daily Faceoff', kind: 'hockey-site', url: 'https://www.dailyfaceoff.com', contentType: 'article', priority: 78 },
   { id: 'the-hockey-writers', name: 'The Hockey Writers', kind: 'hockey-site', url: 'https://thehockeywriters.com/category/toronto-maple-leafs/', feedUrl: 'https://thehockeywriters.com/category/toronto-maple-leafs/feed/', contentType: 'article', priority: 74, leafsFocused: true },
   { id: 'sportsnet', name: 'Sportsnet', kind: 'sports-media', url: 'https://www.sportsnet.ca', feedUrl: 'https://www.sportsnet.ca/feed/', contentType: 'article', priority: 82 },
+  { id: 'sportsnet-leafs-recaps', name: 'Sportsnet Maple Leafs Highlights', kind: 'television', url: 'https://watch.sportsnet.ca/team/Toronto_Maple_Leafs_155261', contentType: 'video', priority: 94, leafsFocused: true },
   { id: 'cbc-nhl', name: 'CBC Sports NHL', kind: 'sports-media', url: 'https://www.cbc.ca/sports/hockey/nhl', feedUrl: 'https://news.google.com/rss/search?q=site%3Acbc.ca%2Fsports%2Fhockey%2Fnhl%20%22Maple%20Leafs%22&hl=en-CA&gl=CA&ceid=CA%3Aen', contentType: 'article', priority: 78 },
   { id: 'espn-nhl', name: 'ESPN NHL', kind: 'sports-media', url: 'https://www.espn.com/nhl/', feedUrl: 'https://www.espn.com/espn/rss/nhl/news', contentType: 'article', priority: 72 },
   { id: 'thescore-nhl', name: 'theScore', kind: 'sports-media', url: 'https://www.thescore.com/nhl/news', feedUrl: 'https://news.google.com/rss/search?q=site%3Athescore.com%20%22Maple%20Leafs%22&hl=en-CA&gl=CA&ceid=CA%3Aen', contentType: 'article', priority: 70, leafsFocused: true },

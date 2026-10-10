@@ -19,6 +19,7 @@ const TOPIC_RULES: Array<{ topic: StoryTopic; terms: string[] }> = [
 const POSITIVE_TERMS = ['wins', 'win', 'surge', 'record', 'returns', 'strong', 'best', 'dominant', 'boost'];
 const NEGATIVE_TERMS = ['loss', 'loses', 'injury', 'concern', 'struggle', 'bad', 'suspended', 'decline'];
 const RUMOUR_TERMS = ['rumor', 'rumour', 'speculation', 'linked', 'believed', 'could', 'might', 'may', 'interest', 'insider'];
+const GAME_RECAP_TERMS = ['condensed game', 'nhl highlights:', 'game recap'];
 
 export function enrichArticle(article: NewsArticle, existing: NewsArticle[] = []): NewsArticle {
   const text = normalizeText(`${article.title} ${article.description}`);
@@ -93,6 +94,7 @@ function generateTakeaways(
 }
 
 function classifyTopic(text: string, contentType: NewsArticle['contentType']): StoryTopic {
+  if (GAME_RECAP_TERMS.some((term) => text.includes(term))) return 'game';
   if (contentType === 'video' || contentType === 'podcast') return 'media';
 
   const match = TOPIC_RULES.find(({ terms }) => terms.some((term) => text.includes(term)));

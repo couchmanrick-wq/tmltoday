@@ -58,11 +58,107 @@ export async function discoverArticles(options: { limitPerSource?: number; sourc
 }
 
 async function discoverSource(source: AggregatorSource, limit: number) {
+  if (source.id === 'sportsnet-leafs-recaps') {
+    return scrapeSportsnetLeafsRecaps(source, limit);
+  }
+
+  if (source.id === 'nhl-condensed-leafs') {
+    return scrapeNhlCondensedLeafsGames(source, limit);
+  }
+
   if (source.feedUrl) {
     return fetchFeed(source, limit);
   }
 
   return scrapeLandingPage(source, limit);
+}
+
+async function fetchSourceDocument(source: AggregatorSource) {
+  const response = await fetch(source.url, {
+    headers: { 'user-agent': 'TMLtodayBot/1.0 (+https://tmltoday.com)' },
+  });
+
+  if (!response.ok) throw new Error(`Page returned ${response.status}`);
+
+  return new DOMParser().parseFromString(await response.text(), 'text/html');
+}
+
+async function scrapeSportsnetLeafsRecaps(source: AggregatorSource, limit: number): Promise<NewsArticle[]> {
+  const document = await fetchSourceDocument(source);
+  const articles = [...document.querySelectorAll('a.event-packshot-item')]
+    .map((anchor) => {
+      const href = anchor.getAttribute('href');
+      const title = normalizeWhitespace(
+        anchor.getAttribute('aria-label') || anchor.querySelector('.event-metadata__title')?.textContent || ''
+      );
+
+      if (!href || !/^NHL Highlights:/i.test(title) || !/Maple Leafs/i.test(title)) return null;
+
+      const link = new URL(href, source.url).toString();
+      const duration = normalizeWhitespace(anchor.querySelector('.duration')?.textContent ?? '');
+      const relativeTime = normalizeWhitespace(anchor.querySelector('.event-metadata__time')?.textContent ?? '');
+
+      return normalizeArticle({
+        id: stableId(link),
+        title,
+        description: `Sportsnet game recap${duration ? ` (${duration})` : ''}: ${title}.`,
+        source: source.name,
+        sourceUrl: source.url,
+        link,
+        image: anchor.querySelector('img')?.getAttribute('src') || undefined,
+        contentType: source.contentType,
+        publishedAt: relativeDate(relativeTime),
+      });
+    })
+    .filter((article): article is NewsArticle => Boolean(article));
+
+  return dedupeByUrl(articles).slice(0, limit);
+}
+
+async function scrapeNhlCondensedLeafsGames(source: AggregatorSource, limit: number): Promise<NewsArticle[]> {
+  const document = await fetchSourceDocument(source);
+  const articles = [...document.querySelectorAll('a.nhl-c-card-wrap.-video')]
+    .map((anchor) => {
+      const href = anchor.getAttribute('href');
+      const title = normalizeWhitespace(anchor.querySelector('.fa-text__title')?.textContent ?? '');
+
+      if (!href || !/Condensed Game/i.test(title) || !/(?:\bTOR\b|Maple Leafs)/i.test(title)) return null;
+
+      const link = new URL(href, source.url).toString();
+      const duration = normalizeWhitespace(anchor.querySelector('.nhl-c-card__duration')?.textContent ?? '');
+      const publishedAt = anchor.querySelector('time')?.getAttribute('datetime') || anchor.querySelector('time')?.textContent || '';
+
+      return normalizeArticle({
+        id: stableId(link),
+        title,
+        description: `NHL condensed game recap${duration ? ` (${duration})` : ''}: ${title}.`,
+        source: source.name,
+        sourceUrl: source.url,
+        link,
+        image: anchor.querySelector('img')?.getAttribute('src') || undefined,
+        contentType: source.contentType,
+        publishedAt: normalizeDate(publishedAt),
+      });
+    })
+    .filter((article): article is NewsArticle => Boolean(article));
+
+  return dedupeByUrl(articles).slice(0, limit);
+}
+
+function relativeDate(value: string) {
+  const match = value.match(/^(\d+)\s+(minute|hour|day|week)s?\s+ago$/i);
+  if (!match) return new Date().toISOString();
+
+  const amount = Number(match[1]);
+  const unitMs = match[2].toLowerCase() === 'minute'
+    ? 60_000
+    : match[2].toLowerCase() === 'hour'
+      ? 3_600_000
+      : match[2].toLowerCase() === 'day'
+        ? 86_400_000
+        : 604_800_000;
+
+  return new Date(Date.now() - amount * unitMs).toISOString();
 }
 
 async function fetchFeed(source: AggregatorSource, limit: number): Promise<NewsArticle[]> {
@@ -104,14 +200,7 @@ async function fetchFeed(source: AggregatorSource, limit: number): Promise<NewsA
 }
 
 async function scrapeLandingPage(source: AggregatorSource, limit: number): Promise<NewsArticle[]> {
-  const response = await fetch(source.url, {
-    headers: { 'user-agent': 'TMLtodayBot/1.0 (+https://tmltoday.com)' },
-  });
-
-  if (!response.ok) throw new Error(`Page returned ${response.status}`);
-
-  const html = await response.text();
-  const document = new DOMParser().parseFromString(html, 'text/html');
+  const document = await fetchSourceDocument(source);
   const structuredCandidates = source.id === 'blogto'
     ? [...document.querySelectorAll('a.article-thumbnail-link')]
         .map((anchor) => {
