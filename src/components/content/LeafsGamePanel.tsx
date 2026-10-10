@@ -19,6 +19,7 @@ const torontoTime = new Intl.DateTimeFormat('en-CA', {
 
 const leafsOddsUrl = 'https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs';
 const gameDiscussionUrl = 'https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/';
+const nhlGameVideosUrl = 'https://www.nhl.com/video/topic/condensed-games/';
 
 function periodLabel(game: NonNullable<LeafsGamePanelData['lastGame']>) {
   if (game.periodType === 'SO') return 'SO';
@@ -85,13 +86,19 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
   const skaters = game.leafsSkaters ?? [];
   const goalies = game.leafsGoalies ?? [];
   const hasStats = skaters.length > 0 || goalies.length > 0;
+  const gameVideosUrl = game.condensedGameUrl ?? nhlGameVideosUrl;
 
   if (!hasStats) {
     return (
       <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 text-xs font-bold text-blue-500">
         <span aria-hidden="true">→</span>
+        <span>Leafs Scoring</span>
+        <span aria-hidden="true">•</span>
         <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
-        {game.condensedGameUrl && <><span aria-hidden="true">•</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
+        <span aria-hidden="true">•</span>
+        <ExternalLink href={gameVideosUrl}>Game Vids</ExternalLink>
+        <span aria-hidden="true">•</span>
+        <ExternalLink href={gameDiscussionUrl}>Discussion</ExternalLink>
       </div>
     );
   }
@@ -104,7 +111,10 @@ function LastGameLeafsStats({ game }: { game: NonNullable<LeafsGamePanelData['la
           <span>Leafs Scoring</span>
           <span aria-hidden="true">•</span>
           <ExternalLink href={game.boxScoreUrl}>Box Score</ExternalLink>
-          {game.condensedGameUrl && <><span aria-hidden="true">•</span><ExternalLink href={game.condensedGameUrl}>Condensed Game Video</ExternalLink></>}
+          <span aria-hidden="true">•</span>
+          <ExternalLink href={gameVideosUrl}>Game Vids</ExternalLink>
+          <span aria-hidden="true">•</span>
+          <ExternalLink href={gameDiscussionUrl}>Discussion</ExternalLink>
         </span>
       </summary>
       <div className="mt-3">
