@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 const SCRIPT = `(function () {
   var SITE = "https://tmltoday.com";
+  var DISCUSSION = "https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/";
   var ODDS = "https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs";
   var host = document.querySelector(".p-body-inner") || document.querySelector(".p-body");
   if (!host) return;
@@ -121,6 +122,83 @@ const SCRIPT = `(function () {
       boxes[i].innerHTML = box.innerHTML;
       boxes[i].style.display = box.style.display;
     }
+    renderSidebar(data);
+  }
+
+  var panels = [];
+  var sidebars = document.querySelectorAll(".p-body-sidebar");
+  for (var si = 0; si < sidebars.length; si++) {
+    var pnl = document.createElement("div");
+    pnl.style.cssText = "background:#fff;border-radius:10px;border-top:4px solid #00205b;box-shadow:0 1px 4px rgba(0,32,91,.12);margin-bottom:14px;padding:6px 14px 12px;font-family:Roboto,Arial,sans-serif;display:none";
+    sidebars[si].insertBefore(pnl, sidebars[si].firstChild);
+    panels.push(pnl);
+  }
+
+  function sRow(left, right, leftCss, rightCss) {
+    var r = el("div", "display:flex;justify-content:space-between;align-items:baseline;padding:5px 0");
+    r.appendChild(el("span", leftCss, left));
+    if (right != null) r.appendChild(el("span", rightCss, right));
+    return r;
+  }
+  function sLinks(items) {
+    var d = el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;margin-top:8px;font-size:12px");
+    d.appendChild(el("span", "color:#64748b;margin-right:8px", "→"));
+    items.forEach(function (it, i) {
+      if (i) d.appendChild(el("span", "color:#64748b;margin:0 7px", "•"));
+      var a = el("a", "color:#3b4bb0;font-weight:700;text-decoration:none", it[0]);
+      a.href = it[1]; a.target = "_blank"; a.rel = "noopener noreferrer";
+      d.appendChild(a);
+    });
+    return d;
+  }
+  function sHead(title, when, top) {
+    var h = el("div", "display:flex;justify-content:space-between;align-items:baseline;padding:" + (top ? "6px" : "10px") + " 0 2px");
+    h.appendChild(el("span", "color:#d6001c;font-size:19px;font-weight:800;text-transform:uppercase", title));
+    h.appendChild(el("span", "color:#64748b;font-size:12px;font-weight:700", when));
+    return h;
+  }
+  function sDetail(k, v) {
+    var r = el("div", "display:flex;font-size:12px;padding:2px 0");
+    r.appendChild(el("span", "width:62px;color:#64748b;font-weight:700;text-transform:uppercase", k));
+    r.appendChild(el("span", "color:#334155;font-weight:700", v));
+    return r;
+  }
+  var NAVY = "color:#00205b;font-size:14px;font-weight:700", SCORE = "color:#00205b;font-size:24px;font-weight:800";
+
+  function renderSidebar(data) {
+    var last = data.lastGame, next = data.nextGame;
+    panels.forEach(function (box) {
+      box.textContent = "";
+      if (last) {
+        box.appendChild(sHead("Latest Game", dateFmt.format(new Date(last.startsAt)) , true));
+        box.appendChild(sRow(last.away.name, String(last.away.score || 0), NAVY, SCORE));
+        box.appendChild(sRow(last.home.name, String(last.home.score || 0), NAVY, SCORE));
+        var live = last.isLive;
+        var st = live ? "LIVE · " + periodLabel(last) : (last.resultType && last.resultType !== "REG" ? "FINAL/" + last.resultType : "FINAL");
+        box.appendChild(el("div", "text-align:right;font-size:10px;font-weight:800;letter-spacing:.5px;color:" + (live ? "#16a34a" : "#64748b"), st));
+        var items = [["Box Score", last.boxScoreUrl]];
+        if (last.condensedGameUrl) items.push(["Game Vids", last.condensedGameUrl]);
+        items.push(["Discussion", DISCUSSION]);
+        box.appendChild(sLinks(items));
+      }
+      if (next) {
+        var d = new Date(next.startsAt);
+        box.appendChild(sHead("Next Game", dateFmt.format(d)));
+        box.appendChild(sRow(next.away.name, "-", NAVY, SCORE));
+        box.appendChild(sRow(next.home.name, "-", NAVY, SCORE));
+        var det = el("div", "margin-top:6px");
+        det.appendChild(sDetail("Time", timeFmt.format(d)));
+        det.appendChild(sDetail("Arena", next.venue));
+        det.appendChild(sDetail("TV", next.tv.join(", ") || "TBA"));
+        box.appendChild(det);
+        var ni = [["Game centre", next.boxScoreUrl]];
+        if (data.projectedLineup && data.projectedLineup.sourceUrl) ni.push(["Expected Lines", data.projectedLineup.sourceUrl]);
+        if (next.radioUrl) ni.unshift(["Listen Live", next.radioUrl]);
+        ni.push(["Odds", ODDS], ["Discussion", DISCUSSION]);
+        box.appendChild(sLinks(ni));
+      }
+      box.style.display = last || next ? "block" : "none";
+    });
   }
 
   function json(u) { return fetch(u).then(function (r) { return r.json(); }).catch(function () { return null; }); }
