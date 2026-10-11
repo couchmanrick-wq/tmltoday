@@ -10,9 +10,16 @@ const SCRIPT = `(function () {
   hide.textContent = ".p-breadcrumbs{display:none!important}";
   document.head.appendChild(hide);
 
-  var box = document.createElement("div");
-  box.style.cssText = "background:#fff;border:1px solid #d5dbe8;border-top:4px solid #00205b;border-radius:8px;box-shadow:0 2px 8px rgba(0,32,91,.12);margin:0 auto 12px;padding:8px 16px;font:600 15px/1.6 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
-  host.insertBefore(box, host.firstChild);
+  var boxes = [];
+  function makeBox(parent, before) {
+    var b = document.createElement("div");
+    b.style.cssText = "background:#fff;border:1px solid #d5dbe8;border-top:4px solid #00205b;border-radius:8px;box-shadow:0 2px 8px rgba(0,32,91,.12);margin:0 auto 12px;padding:8px 16px;font:600 15px/1.6 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
+    parent.insertBefore(b, before);
+    boxes.push(b);
+  }
+  makeBox(host, host.firstChild);
+  var quick = document.querySelector(".js-quickReply") || document.querySelector("#quickReply");
+  if (quick && quick.parentNode) makeBox(quick.parentNode, quick);
 
   var dateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
   var timeFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
@@ -41,6 +48,7 @@ const SCRIPT = `(function () {
   }
 
   function render(data, live) {
+    var box = boxes[0];
     box.textContent = "";
     var last = data.lastGame, next = data.nextGame;
     if (last) {
@@ -68,6 +76,10 @@ const SCRIPT = `(function () {
       box.appendChild(n);
     }
     box.style.display = last || next ? "block" : "none";
+    for (var i = 1; i < boxes.length; i++) {
+      boxes[i].innerHTML = box.innerHTML;
+      boxes[i].style.display = box.style.display;
+    }
   }
 
   function json(u) { return fetch(u).then(function (r) { return r.json(); }).catch(function () { return null; }); }
