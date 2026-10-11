@@ -152,7 +152,7 @@ const SCRIPT = `(function () {
     return d;
   }
   function sHead(title, when, top) {
-    var h = el("div", "display:flex;justify-content:space-between;align-items:baseline;padding:" + (top ? "6px" : "10px") + " 0 2px");
+    var h = el("div", "display:flex;justify-content:space-between;align-items:baseline;padding:" + (top ? "6px" : "26px") + " 0 2px");
     h.appendChild(el("span", "color:#d6001c;font-size:19px;font-weight:800;text-transform:uppercase", title));
     h.appendChild(el("span", "color:#64748b;font-size:12px;font-weight:700", when));
     return h;
