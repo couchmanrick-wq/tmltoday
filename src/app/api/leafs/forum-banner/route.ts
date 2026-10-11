@@ -7,8 +7,12 @@ const SCRIPT = `(function () {
   var host = document.querySelector(".p-body-inner") || document.querySelector(".p-body");
   if (!host) return;
 
+  var hide = document.createElement("style");
+  hide.textContent = ".p-breadcrumbs{display:none!important}";
+  document.head.appendChild(hide);
+
   var box = document.createElement("div");
-  box.style.cssText = "background:#fff;border-top:3px solid #00205b;margin-bottom:10px;padding:4px 10px;font:600 13px/1.5 Roboto,Arial,sans-serif;color:#00205b;display:none";
+  box.style.cssText = "background:#fff;border-top:3px solid #00205b;margin-bottom:10px;padding:4px 10px;font:600 13px/1.5 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
   host.insertBefore(box, host.firstChild);
 
   var dateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
@@ -27,7 +31,7 @@ const SCRIPT = `(function () {
     a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
     return a;
   }
-  function row() { return el("div", "display:flex;flex-wrap:wrap;align-items:baseline;padding:2px 0"); }
+  function row() { return el("div", "display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;padding:2px 0"); }
 
   function status(g, live) {
     if (g.isLive) {
