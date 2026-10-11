@@ -34,7 +34,7 @@ const SCRIPT = `(function () {
   var boxes = [];
   function makeBox(parent, before) {
     var b = document.createElement("div");
-    b.style.cssText = "background:#fff;border:1px solid #d5dbe8;border-top:4px solid #00205b;border-radius:8px;box-shadow:0 2px 8px rgba(0,32,91,.12);margin:0 auto 12px;padding:8px 16px;font:600 15px/1.6 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
+    b.style.cssText = "background:#00205b;border-radius:10px;box-shadow:0 2px 8px rgba(0,32,91,.25);margin:0 auto 12px;padding:8px 18px;font:600 14px/1.4 Roboto,Arial,sans-serif;color:#fff;display:none";
     parent.insertBefore(b, before);
     boxes.push(b);
   }
@@ -44,6 +44,7 @@ const SCRIPT = `(function () {
 
   var dateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
   var timeFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  var GREEN = "#34d399", SOFT = "#cbd5e1";
 
   function el(tag, css, text) {
     var e = document.createElement(tag);
@@ -51,21 +52,20 @@ const SCRIPT = `(function () {
     if (text != null) e.textContent = text;
     return e;
   }
-  function label(t) { return el("span", "color:#d6001c;font-weight:800;text-transform:uppercase;margin-right:6px", t); }
-  function muted(t) { return el("span", "color:#64748b;font-weight:700;margin:0 8px", t); }
   function link(t, href) {
-    var a = el("a", "color:#3b5bdb;font-weight:700;margin-left:10px;text-decoration:none", t);
+    var a = el("a", "color:#93b4ff;font-weight:700;margin-left:12px;text-decoration:none", t);
     a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
     return a;
   }
-  function row() { return el("div", "display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;padding:3px 0"); }
-
-  function status(g, live) {
-    if (g.isLive) {
-      var p = g.periodType === "SO" ? "SO" : (g.periodType === "OT" || g.periodNumber > 3) ? "OT" : ["", "1st", "2nd", "3rd"][g.periodNumber] || "";
-      return g.inIntermission ? "Intermission " + p : p + " " + (g.timeRemaining || "");
-    }
-    return g.resultType && g.resultType !== "REG" ? "Final/" + g.resultType : "Final";
+  function team(code, name) {
+    var d = el("div", "display:flex;flex-direction:column;align-items:center;line-height:1.15");
+    d.appendChild(el("span", "font-size:22px;font-weight:800;letter-spacing:.5px", code));
+    if (name) d.appendChild(el("span", "font-size:11px;font-weight:500;color:" + SOFT, name));
+    return d;
+  }
+  function periodLabel(g) {
+    var p = g.periodType === "SO" ? "SO" : (g.periodType === "OT" || g.periodNumber > 3) ? "OT" : ["", "1st", "2nd", "3rd"][g.periodNumber] || "";
+    return g.inIntermission ? "Intermission " + p : (p + " " + (g.timeRemaining || "")).trim();
   }
 
   function render(data, live) {
@@ -73,26 +73,45 @@ const SCRIPT = `(function () {
     box.textContent = "";
     var last = data.lastGame, next = data.nextGame;
     if (last) {
-      var r = row();
-      r.appendChild(label("Latest:"));
-      r.appendChild(el("span", "margin-right:8px", dateFmt.format(new Date(last.startsAt))));
-      r.appendChild(el("span", "", last.away.abbrev + " " + (last.away.score || 0) + " - " + last.home.abbrev + " " + (last.home.score || 0)));
-      r.appendChild(muted(status(last).trim()));
-      if (live && live.gameId === last.id && live.away.shots != null && live.home.shots != null) {
-        r.appendChild(muted("SOG " + live.away.code + " " + live.away.shots + "-" + live.home.shots + " " + live.home.code));
+      var same = live && live.gameId === last.id;
+      var final = !last.isLive;
+      var head = el("div", "display:flex;justify-content:space-between;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px");
+      head.appendChild(el("span", "", "TML Today · Latest · " + dateFmt.format(new Date(last.startsAt))));
+      head.appendChild(el("span", "color:" + (final ? SOFT : GREEN), final ? (last.resultType && last.resultType !== "REG" ? "Final/" + last.resultType : "Final") : "● Live"));
+      box.appendChild(head);
+
+      var main = el("div", "display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:4px 0");
+      main.appendChild(team(last.away.abbrev, same ? live.away.name : ""));
+      var mid = el("div", "text-align:center;line-height:1.2;min-width:110px");
+      mid.appendChild(el("div", "font-size:26px;font-weight:800", (last.away.score || 0) + " – " + (last.home.score || 0)));
+      if (!final) mid.appendChild(el("div", "font-size:13px;font-weight:700;color:" + GREEN, periodLabel(last)));
+      main.appendChild(mid);
+      main.appendChild(team(last.home.abbrev, same ? live.home.name : ""));
+      box.appendChild(main);
+
+      var foot = el("div", "display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.12);padding-top:4px;font-size:12px");
+      if (same && live.away.shots != null && live.home.shots != null) {
+        var sog = el("span", "");
+        sog.appendChild(el("span", "color:" + SOFT + ";font-weight:500", "Shots on goal "));
+        sog.appendChild(el("span", "font-weight:800", live.away.shots + " – " + live.home.shots));
+        foot.appendChild(sog);
+      } else {
+        foot.appendChild(el("span", ""));
       }
-      r.appendChild(link("Box Score", last.boxScoreUrl));
-      if (last.condensedGameUrl) r.appendChild(link("Game Vids", last.condensedGameUrl));
-      box.appendChild(r);
+      var links = el("span", "");
+      links.appendChild(link("Box Score", last.boxScoreUrl));
+      if (last.condensedGameUrl) links.appendChild(link("Game Vids", last.condensedGameUrl));
+      foot.appendChild(links);
+      box.appendChild(foot);
     }
     if (next) {
-      var n = row(), d = new Date(next.startsAt);
-      n.appendChild(label("Next:"));
-      n.appendChild(el("span", "margin-right:8px", dateFmt.format(d)));
-      n.appendChild(el("span", "", next.away.abbrev + " @ " + next.home.abbrev));
-      n.appendChild(muted(timeFmt.format(d)));
-      n.appendChild(muted(next.venue));
-      n.appendChild(muted(next.tv.join(", ") || "TBA"));
+      var d = new Date(next.startsAt);
+      var n = el("div", "display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 10px;border-top:1px solid rgba(255,255,255,.12);margin-top:6px;padding-top:5px;font-size:12px;color:" + SOFT);
+      n.appendChild(el("span", "color:#fff;font-weight:800;text-transform:uppercase", "Next: " + dateFmt.format(d)));
+      n.appendChild(el("span", "color:#fff;font-weight:700", next.away.abbrev + " @ " + next.home.abbrev));
+      n.appendChild(el("span", "", timeFmt.format(d)));
+      n.appendChild(el("span", "", next.venue));
+      n.appendChild(el("span", "", next.tv.join(", ") || "TBA"));
       if (next.radioUrl) n.appendChild(link("Listen Live", next.radioUrl));
       n.appendChild(link("Odds", ODDS));
       box.appendChild(n);

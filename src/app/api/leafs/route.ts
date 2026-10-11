@@ -89,11 +89,13 @@ export async function GET() {
           : "",
         away: {
           code: game.awayTeam.abbrev,
+          name: game.awayTeam.commonName?.default ?? "",
           score: game.awayTeam.score ?? 0,
           shots: game.awayTeam.sog ?? null
         },
         home: {
           code: game.homeTeam.abbrev,
+          name: game.homeTeam.commonName?.default ?? "",
           score: game.homeTeam.score ?? 0,
           shots: game.homeTeam.sog ?? null
         }
