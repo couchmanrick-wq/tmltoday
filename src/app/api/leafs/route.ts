@@ -18,11 +18,11 @@ export async function GET() {
     // Find the latest started Leafs regular-season game
     const scheduleResponse = await fetch(
       `https://api-web.nhle.com/v1/club-schedule-season/TOR/${SEASON}`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store" }
     );
 
     if (!scheduleResponse.ok) {
-      throw new Error("Schedule request failed");
+      throw new Error(`Schedule request failed: ${scheduleResponse.status}`);
     }
 
     const schedule: any = await scheduleResponse.json();
@@ -50,11 +50,11 @@ export async function GET() {
     // Retrieve live information for that game
     const detailsResponse = await fetch(
       `https://api-web.nhle.com/v1/gamecenter/${latest.id}/landing`,
-      { next: { revalidate: 15 } }
+      { cache: "no-store" }
     );
 
     if (!detailsResponse.ok) {
-      throw new Error("Game details request failed");
+      throw new Error(`Game details request failed: ${detailsResponse.status}`);
     }
 
     const game: any = await detailsResponse.json();
