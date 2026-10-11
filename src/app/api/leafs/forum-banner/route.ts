@@ -14,6 +14,23 @@ const SCRIPT = `(function () {
     ".p-sectionLinks-list .p-navEl-link,.p-sectionLinks-list .p-navEl-splitTrigger{display:flex!important;align-items:center!important;line-height:1.4!important;margin-top:0!important;margin-bottom:0!important;padding-top:12px!important;padding-bottom:12px!important;position:static!important;top:auto!important;transform:none!important;vertical-align:middle!important}";
   document.head.appendChild(hide);
 
+  var navLinks = document.querySelectorAll(".p-sectionLinks-list .p-navEl-link");
+  if (navLinks.length) {
+    var ref = navLinks[0];
+    for (var k = 1; k < navLinks.length; k++) {
+      if (parseFloat(getComputedStyle(navLinks[k]).fontSize) > parseFloat(getComputedStyle(ref).fontSize)) ref = navLinks[k];
+    }
+    var rs = getComputedStyle(ref);
+    for (var m = 0; m < navLinks.length; m++) {
+      var st = navLinks[m].style;
+      st.setProperty("font-size", rs.fontSize, "important");
+      st.setProperty("font-weight", rs.fontWeight, "important");
+      st.setProperty("font-family", rs.fontFamily, "important");
+      st.setProperty("letter-spacing", rs.letterSpacing, "important");
+      st.setProperty("text-transform", rs.textTransform, "important");
+    }
+  }
+
   var boxes = [];
   function makeBox(parent, before) {
     var b = document.createElement("div");
