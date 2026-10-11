@@ -7,7 +7,11 @@ const SCRIPT = `(function () {
   if (!host) return;
 
   var hide = document.createElement("style");
-  hide.textContent = ".p-breadcrumbs{display:none!important}";
+  hide.textContent = ".p-breadcrumbs{display:none!important}" +
+    ".p-sectionLinks-list{display:flex!important;align-items:center!important}" +
+    ".p-sectionLinks-list>li{display:flex!important;align-items:center!important;align-self:center!important;margin:0!important;padding:0!important}" +
+    ".p-sectionLinks-list .p-navEl{display:flex!important;align-items:center!important;margin:0!important;padding:0!important}" +
+    ".p-sectionLinks-list .p-navEl-link,.p-sectionLinks-list .p-navEl-splitTrigger{display:flex!important;align-items:center!important;line-height:1.4!important;margin-top:0!important;margin-bottom:0!important;padding-top:12px!important;padding-bottom:12px!important;position:static!important;top:auto!important;transform:none!important;vertical-align:middle!important}";
   document.head.appendChild(hide);
 
   var boxes = [];
