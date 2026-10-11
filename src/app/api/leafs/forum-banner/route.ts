@@ -36,10 +36,10 @@ const SCRIPT = `(function () {
   function makeBox(parent, before) {
     var b = document.createElement("div");
     b.style.cssText = "background:#00205b;border-radius:10px;box-shadow:0 2px 8px rgba(0,32,91,.25);margin:0 auto 12px;padding:8px 18px;font:600 14px/1.4 Roboto,Arial,sans-serif;color:#fff;display:none";
-    parent.insertBefore(b, before);
+    if (parent) parent.insertBefore(b, before);
     boxes.push(b);
   }
-  makeBox(host, host.firstChild);
+  makeBox(null, null); // detached source box; only copies are shown
   var quick = document.querySelector(".js-quickReply") || document.querySelector("#quickReply");
   if (quick && quick.parentNode) makeBox(quick.parentNode, quick);
 
