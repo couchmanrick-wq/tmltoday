@@ -53,13 +53,12 @@ const SCRIPT = `(function () {
     var last = data.lastGame, next = data.nextGame;
     if (last) {
       var r = row();
-      r.appendChild(label("Latest"));
+      r.appendChild(label("Latest: " + dateFmt.format(new Date(last.startsAt))));
       r.appendChild(el("span", "", last.away.abbrev + " " + (last.away.score || 0) + " - " + last.home.abbrev + " " + (last.home.score || 0)));
       r.appendChild(muted(status(last).trim()));
       if (live && live.gameId === last.id && live.away.shots != null && live.home.shots != null) {
         r.appendChild(muted("SOG " + live.away.code + " " + live.away.shots + "-" + live.home.shots + " " + live.home.code));
       }
-      r.appendChild(muted(dateFmt.format(new Date(last.startsAt))));
       r.appendChild(link("Box Score", last.boxScoreUrl));
       if (last.condensedGameUrl) r.appendChild(link("Game Vids", last.condensedGameUrl));
       box.appendChild(r);
