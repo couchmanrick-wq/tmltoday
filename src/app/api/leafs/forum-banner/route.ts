@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 
 const SCRIPT = `(function () {
   var SITE = "https://tmltoday.com";
-  var DISCUSSION = "https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/";
   var ODDS = "https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs";
   var host = document.querySelector(".p-body-inner") || document.querySelector(".p-body");
   if (!host) return;
@@ -12,7 +11,7 @@ const SCRIPT = `(function () {
   document.head.appendChild(hide);
 
   var box = document.createElement("div");
-  box.style.cssText = "background:#fff;border-top:3px solid #00205b;margin-bottom:10px;padding:4px 10px;font:600 13px/1.5 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
+  box.style.cssText = "background:#fff;border:1px solid #d5dbe8;border-top:4px solid #00205b;border-radius:8px;box-shadow:0 2px 8px rgba(0,32,91,.12);margin:0 auto 12px;padding:8px 16px;font:600 15px/1.6 Roboto,Arial,sans-serif;color:#00205b;display:none;text-align:center";
   host.insertBefore(box, host.firstChild);
 
   var dateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
@@ -31,7 +30,7 @@ const SCRIPT = `(function () {
     a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
     return a;
   }
-  function row() { return el("div", "display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;padding:2px 0"); }
+  function row() { return el("div", "display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;padding:3px 0"); }
 
   function status(g, live) {
     if (g.isLive) {
@@ -55,7 +54,6 @@ const SCRIPT = `(function () {
       r.appendChild(muted(dateFmt.format(new Date(last.startsAt))));
       r.appendChild(link("Box Score", last.boxScoreUrl));
       if (last.condensedGameUrl) r.appendChild(link("Game Vids", last.condensedGameUrl));
-      r.appendChild(link("Discussion", DISCUSSION));
       box.appendChild(r);
     }
     if (next) {
@@ -67,7 +65,6 @@ const SCRIPT = `(function () {
       n.appendChild(muted(next.tv.join(", ") || "TBA"));
       if (next.radioUrl) n.appendChild(link("Listen Live", next.radioUrl));
       n.appendChild(link("Odds", ODDS));
-      n.appendChild(link("Discussion", DISCUSSION));
       box.appendChild(n);
     }
     box.style.display = last || next ? "block" : "none";
