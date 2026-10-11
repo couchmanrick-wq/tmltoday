@@ -30,7 +30,7 @@ const SCRIPT = `(function () {
     if (text != null) e.textContent = text;
     return e;
   }
-  function label(t) { return el("span", "color:#d6001c;font-weight:800;text-transform:uppercase;margin-right:8px", t); }
+  function label(t) { return el("span", "color:#d6001c;font-weight:800;text-transform:uppercase;margin-right:6px", t); }
   function muted(t) { return el("span", "color:#64748b;font-weight:700;margin:0 8px", t); }
   function link(t, href) {
     var a = el("a", "color:#3b5bdb;font-weight:700;margin-left:10px;text-decoration:none", t);
@@ -53,7 +53,8 @@ const SCRIPT = `(function () {
     var last = data.lastGame, next = data.nextGame;
     if (last) {
       var r = row();
-      r.appendChild(label("Latest: " + dateFmt.format(new Date(last.startsAt))));
+      r.appendChild(label("Latest:"));
+      r.appendChild(el("span", "margin-right:8px", dateFmt.format(new Date(last.startsAt))));
       r.appendChild(el("span", "", last.away.abbrev + " " + (last.away.score || 0) + " - " + last.home.abbrev + " " + (last.home.score || 0)));
       r.appendChild(muted(status(last).trim()));
       if (live && live.gameId === last.id && live.away.shots != null && live.home.shots != null) {
@@ -65,9 +66,10 @@ const SCRIPT = `(function () {
     }
     if (next) {
       var n = row(), d = new Date(next.startsAt);
-      n.appendChild(label("Next"));
+      n.appendChild(label("Next:"));
+      n.appendChild(el("span", "margin-right:8px", dateFmt.format(d)));
       n.appendChild(el("span", "", next.away.abbrev + " @ " + next.home.abbrev));
-      n.appendChild(muted(dateFmt.format(d) + " " + timeFmt.format(d)));
+      n.appendChild(muted(timeFmt.format(d)));
       n.appendChild(muted(next.venue));
       n.appendChild(muted(next.tv.join(", ") || "TBA"));
       if (next.radioUrl) n.appendChild(link("Listen Live", next.radioUrl));
