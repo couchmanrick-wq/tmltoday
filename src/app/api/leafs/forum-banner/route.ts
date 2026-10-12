@@ -42,6 +42,16 @@ const SCRIPT = `(function () {
   makeBox(null, null); // detached source box; only copies are shown
   var key = document.documentElement.getAttribute("data-content-key") || "";
   var gameDay = key.indexOf("thread-") === 0 && !!document.querySelector('.p-breadcrumbs a[href*="leafs-game-day-threads"]');
+  var threadDay = null;
+  if (gameDay) {
+    var tEl = document.querySelector(".p-title-value");
+    var tm = /\\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s+(\\d{1,2})/i.exec(tEl ? tEl.textContent : document.title);
+    if (tm) {
+      var mo = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(tm[1].toLowerCase()) + 1;
+      threadDay = (mo < 10 ? "0" : "") + mo + "-" + (tm[2].length < 2 ? "0" : "") + tm[2];
+    }
+  }
+  var threadGame = null;
   var pages = document.querySelectorAll(".pageNav-page");
   var onLastPage = !pages.length || pages[pages.length - 1].classList.contains("pageNav-page--current");
   var posts = document.querySelectorAll("article.message");
@@ -76,23 +86,36 @@ const SCRIPT = `(function () {
     return g.inIntermission ? "Intermission " + p : (p + " " + (g.timeRemaining || "")).trim();
   }
 
+  function fromGame(g) {
+    return {
+      id: g.gameId, startsAt: g.startsAt,
+      away: { abbrev: g.away.code, score: g.away.score }, home: { abbrev: g.home.code, score: g.home.score },
+      isLive: g.live, scheduled: !g.live && !g.final, resultType: g.resultType,
+      periodNumber: g.periodNumber, periodType: g.periodType, inIntermission: g.inIntermission, timeRemaining: g.clock,
+      boxScoreUrl: g.boxScoreUrl, condensedGameUrl: g.condensedGameUrl, radioUrl: g.radioUrl
+    };
+  }
+
   function render(data, live) {
     var box = boxes[0];
     box.textContent = "";
     var last = data.lastGame, next = data.nextGame;
+    var specific = threadDay && threadGame && threadGame.away;
+    if (specific) { last = fromGame(threadGame); live = threadGame; }
     if (last) {
       var same = live && live.gameId === last.id;
-      var final = !last.isLive;
+      var final = !last.isLive && !last.scheduled;
       var head = el("div", "display:flex;justify-content:space-between;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px");
-      head.appendChild(el("span", "", "TML Today · Latest · " + dateFmt.format(new Date(last.startsAt))));
-      head.appendChild(el("span", "color:" + (final ? SOFT : GREEN), final ? (last.resultType && last.resultType !== "REG" ? "Final/" + last.resultType : "Final") : "● Live"));
+      head.appendChild(el("span", "", "TML Today · " + (specific ? "" : "Latest · ") + dateFmt.format(new Date(last.startsAt))));
+      head.appendChild(el("span", "color:" + (final ? SOFT : GREEN), last.scheduled ? "Scheduled" : final ? (last.resultType && last.resultType !== "REG" ? "Final/" + last.resultType : "Final") : "● Live"));
       box.appendChild(head);
 
       var main = el("div", "display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:4px 0");
       main.appendChild(team(last.away.abbrev, same ? live.away.name : ""));
       var mid = el("div", "text-align:center;line-height:1.2;min-width:110px");
-      mid.appendChild(el("div", "font-size:26px;font-weight:800", (last.away.score || 0) + " – " + (last.home.score || 0)));
-      if (!final) mid.appendChild(el("div", "font-size:13px;font-weight:700;color:" + GREEN, periodLabel(last)));
+      mid.appendChild(el("div", "font-size:26px;font-weight:800", last.scheduled ? "vs" : (last.away.score || 0) + " – " + (last.home.score || 0)));
+      if (last.scheduled) mid.appendChild(el("div", "font-size:13px;font-weight:700;color:" + SOFT, timeFmt.format(new Date(last.startsAt))));
+      if (!final && !last.scheduled) mid.appendChild(el("div", "font-size:13px;font-weight:700;color:" + GREEN, periodLabel(last)));
       main.appendChild(mid);
       main.appendChild(team(last.home.abbrev, same ? live.home.name : ""));
       box.appendChild(main);
@@ -148,7 +171,7 @@ const SCRIPT = `(function () {
         foot.appendChild(link("Box Score", last.boxScoreUrl));
         if (last.condensedGameUrl) foot.appendChild(link("Game Vids", last.condensedGameUrl));
       } else {
-        foot.appendChild(link("Live Gamecenter", last.boxScoreUrl));
+        foot.appendChild(link(last.scheduled ? "Gamecenter" : "Live Gamecenter", last.boxScoreUrl));
         if (last.radioUrl) foot.appendChild(link("Listen Live", last.radioUrl));
       }
       if (data.projectedLineup && data.projectedLineup.sourceUrl) foot.appendChild(link("Expected Lines", data.projectedLineup.sourceUrl));
@@ -307,7 +330,8 @@ const SCRIPT = `(function () {
 
   function json(u) { return fetch(u).then(function (r) { return r.json(); }).catch(function () { return null; }); }
   function load() {
-    Promise.all([json(SITE + "/api/leafs-game"), json(SITE + "/api/leafs")]).then(function (res) {
+    Promise.all([json(SITE + "/api/leafs-game"), json(SITE + "/api/leafs"), threadDay ? json(SITE + "/api/leafs?d=" + threadDay) : null]).then(function (res) {
+      threadGame = res[2] && !res[2].error ? res[2] : null;
       if (res[0] && !res[0].error) render(res[0], res[1] && !res[1].error ? res[1] : null);
     });
   }

@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const SEASON = "20262027";
+const SEASONS = ["20262027", "20252026"];
+const NHL_SITE = "https://www.nhl.com";
+const LEAFS_RADIO_URL = "https://www.sportsnet.ca/590/";
+
+const etDay = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Toronto",
+  month: "2-digit",
+  day: "2-digit"
+});
 
 const CORS = {
   "Access-Control-Allow-Origin": "https://forums.tmltoday.com",
@@ -13,32 +21,48 @@ export function OPTIONS() {
   return new Response(null, { status: 204, headers: CORS });
 }
 
-export async function GET() {
+async function fetchSchedule(season: string): Promise<any[]> {
+  const response = await fetch(
+    `https://api-web.nhle.com/v1/club-schedule-season/TOR/${season}`,
+    { cache: "no-store" }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Schedule request failed: ${response.status}`);
+  }
+
+  return ((await response.json()) as any).games ?? [];
+}
+
+export async function GET(request: Request) {
   try {
-    // Find the latest started Leafs regular-season game
-    const scheduleResponse = await fetch(
-      `https://api-web.nhle.com/v1/club-schedule-season/TOR/${SEASON}`,
-      { cache: "no-store" }
-    );
+    // ?d=MM-DD picks the Leafs game on that day (game day threads); otherwise the latest started game
+    const day = new URL(request.url).searchParams.get("d");
+    let latest: any;
 
-    if (!scheduleResponse.ok) {
-      throw new Error(`Schedule request failed: ${scheduleResponse.status}`);
+    if (day && /^\d{2}-\d{2}$/.test(day)) {
+      for (const season of SEASONS) {
+        const games = await fetchSchedule(season);
+        latest = games.find(
+          (g: any) => etDay.format(new Date(g.startTimeUTC)).replace("/", "-") === day
+        );
+        if (latest) break;
+      }
+    } else {
+      // Find the latest started Leafs regular-season game
+      const games = (await fetchSchedule(SEASONS[0]))
+        .filter((g: any) =>
+          g.gameType === 2 &&
+          new Date(g.startTimeUTC).getTime() <= Date.now() &&
+          ["LIVE", "CRIT", "FINAL", "OFF"].includes(g.gameState)
+        )
+        .sort((a: any, b: any) =>
+          Date.parse(b.startTimeUTC) -
+          Date.parse(a.startTimeUTC)
+        );
+
+      latest = games[0];
     }
-
-    const schedule: any = await scheduleResponse.json();
-
-    const games = (schedule.games ?? [])
-      .filter((g: any) =>
-        g.gameType === 2 &&
-        new Date(g.startTimeUTC).getTime() <= Date.now() &&
-        ["LIVE", "CRIT", "FINAL", "OFF"].includes(g.gameState)
-      )
-      .sort((a: any, b: any) =>
-        Date.parse(b.startTimeUTC) -
-        Date.parse(a.startTimeUTC)
-      );
-
-    const latest = games[0];
 
     if (!latest) {
       return NextResponse.json({
@@ -125,6 +149,24 @@ export async function GET() {
     return NextResponse.json(
       {
         gameId: game.id,
+        startsAt: latest.startTimeUTC,
+        venue: latest.venue?.default ?? "",
+        tv: (latest.tvBroadcasts ?? [])
+          .filter((b: any) => b.countryCode === "CA")
+          .map((b: any) => b.network)
+          .filter(Boolean),
+        boxScoreUrl: latest.gameCenterLink
+          ? `${NHL_SITE}${latest.gameCenterLink}`
+          : `${NHL_SITE}/gamecenter/${game.id}`,
+        condensedGameUrl: latest.condensedGame ? `${NHL_SITE}${latest.condensedGame}` : null,
+        radioUrl:
+          (latest.awayTeam?.abbrev === "TOR" ? latest.awayTeam : latest.homeTeam)?.radioLink
+            ? LEAFS_RADIO_URL
+            : null,
+        resultType: latest.gameOutcome?.lastPeriodType ?? null,
+        inIntermission: Boolean(game.clock?.inIntermission),
+        periodNumber: period,
+        periodType: type ?? null,
         live,
         final,
         periodText,
