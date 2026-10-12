@@ -40,8 +40,15 @@ const SCRIPT = `(function () {
     boxes.push(b);
   }
   makeBox(null, null); // detached source box; only copies are shown
-  var quick = document.querySelector(".js-quickReply") || document.querySelector("#quickReply");
-  if (quick && quick.parentNode) makeBox(quick.parentNode, quick);
+  var key = document.documentElement.getAttribute("data-content-key") || "";
+  var gameDay = key.indexOf("thread-") === 0 && !!document.querySelector('.p-breadcrumbs a[href*="leafs-game-day-threads"]');
+  var pages = document.querySelectorAll(".pageNav-page");
+  var onLastPage = !pages.length || pages[pages.length - 1].classList.contains("pageNav-page--current");
+  var posts = document.querySelectorAll("article.message");
+  if (gameDay && onLastPage && posts.length) {
+    var lastPost = posts[posts.length - 1];
+    makeBox(lastPost.parentNode, lastPost.nextSibling);
+  }
 
   var dateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
   var timeFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
@@ -105,19 +112,7 @@ const SCRIPT = `(function () {
       foot.appendChild(links);
       box.appendChild(foot);
     }
-    if (next) {
-      var d = new Date(next.startsAt);
-      var n = el("div", "display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 10px;border-top:1px solid rgba(255,255,255,.12);margin-top:6px;padding-top:5px;font-size:12px;color:" + SOFT);
-      n.appendChild(el("span", "color:#fff;font-weight:800;text-transform:uppercase", "Next: " + dateFmt.format(d)));
-      n.appendChild(el("span", "color:#fff;font-weight:700", next.away.abbrev + " @ " + next.home.abbrev));
-      n.appendChild(el("span", "", timeFmt.format(d)));
-      n.appendChild(el("span", "", next.venue));
-      n.appendChild(el("span", "", next.tv.join(", ") || "TBA"));
-      if (next.radioUrl) n.appendChild(link("Listen Live", next.radioUrl));
-      n.appendChild(link("Odds", ODDS));
-      box.appendChild(n);
-    }
-    box.style.display = last || next ? "block" : "none";
+    box.style.display = last ? "block" : "none";
     for (var i = 1; i < boxes.length; i++) {
       boxes[i].innerHTML = box.innerHTML;
       boxes[i].style.display = box.style.display;
