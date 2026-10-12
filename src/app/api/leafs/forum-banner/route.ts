@@ -163,13 +163,47 @@ const SCRIPT = `(function () {
     renderSidebar(data);
   }
 
-  var panels = [];
+  var panels = [], statPanels = [];
   var sidebars = document.querySelectorAll(".p-body-sidebar");
   for (var si = 0; si < sidebars.length; si++) {
     var pnl = document.createElement("div");
     pnl.style.cssText = "background:#fff;border-radius:10px;border-top:4px solid #00205b;box-shadow:0 1px 4px rgba(0,32,91,.12);margin-bottom:14px;padding:6px 14px 12px;font-family:Roboto,Arial,sans-serif;display:none";
     sidebars[si].insertBefore(pnl, sidebars[si].firstChild);
     panels.push(pnl);
+
+    var sp = document.createElement("div");
+    sp.style.cssText = pnl.style.cssText;
+    sidebars[si].insertBefore(sp, pnl.nextSibling);
+    statPanels.push(sp);
+  }
+
+  function renderStats(data) {
+    var players = data && data.players;
+    statPanels.forEach(function (box) {
+      box.textContent = "";
+      if (!players || !players.length) { box.style.display = "none"; return; }
+      var head = el("div", "display:flex;justify-content:space-between;align-items:center;padding:6px 0 8px");
+      head.appendChild(el("span", "color:#00205b;font-size:19px;font-weight:800", "Player stats"));
+      if (data.season) head.appendChild(el("span", "background:#dbe4f5;color:#00205b;font-size:10px;font-weight:800;border-radius:4px;padding:3px 7px", data.season));
+      box.appendChild(head);
+
+      var cols = "display:grid;grid-template-columns:1fr 26px 22px 22px 32px;gap:0 2px;align-items:center;";
+      var th = el("div", cols + "font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #cbd5e1;padding-bottom:6px");
+      ["Player", "GP", "G", "A", "PTS"].forEach(function (h, i) { th.appendChild(el("span", i ? "text-align:right" : "", h)); });
+      box.appendChild(th);
+
+      players.forEach(function (p, i) {
+        var r = el("div", cols + "font-size:13px;padding:6px 0;border-bottom:1px solid #e2e8f0");
+        var nm = el("span", "color:#00205b;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis");
+        nm.appendChild(el("span", "color:#3b4bb0;margin-right:6px", String(i + 1)));
+        nm.appendChild(document.createTextNode(p.name));
+        r.appendChild(nm);
+        [p.gamesPlayed, p.goals, p.assists].forEach(function (v) { r.appendChild(el("span", "text-align:right;color:#475569", String(v))); });
+        r.appendChild(el("span", "text-align:right;color:#00205b;font-weight:800", String(p.points)));
+        box.appendChild(r);
+      });
+      box.style.display = "block";
+    });
   }
 
   function sRow(left, right, leftCss, rightCss) {
@@ -247,6 +281,10 @@ const SCRIPT = `(function () {
   }
   load();
   setInterval(load, 30000);
+  if (statPanels.length) {
+    json(SITE + "/api/leafs-stats").then(renderStats);
+    setInterval(function () { json(SITE + "/api/leafs-stats").then(renderStats); }, 900000);
+  }
 })();
 `;
 
