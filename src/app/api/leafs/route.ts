@@ -83,6 +83,7 @@ export async function GET() {
         period: periodName(p.periodDescriptor),
         time: g.timeInPeriod ?? "",
         strength: g.strength ?? "ev",
+        assists: (g.assists ?? []).map((a: any) => a.name?.default ?? "").filter(Boolean),
         clip: g.highlightClipSharingUrl ?? null
       }))
     );

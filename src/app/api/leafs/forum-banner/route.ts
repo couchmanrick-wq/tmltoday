@@ -107,19 +107,20 @@ const SCRIPT = `(function () {
         [live.away.code, live.home.code].forEach(function (code) {
           var mine = live.goals.filter(function (g) { return g.team === code; });
           if (!mine.length) return;
-          var line = el("div", "display:flex;flex-wrap:wrap;gap:0 10px;padding:1px 0");
-          line.appendChild(el("span", "font-weight:800;min-width:34px", code));
-          mine.forEach(function (g) {
+          mine.forEach(function (g, gi) {
+            var line = el("div", "display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;padding:1px 0");
+            line.appendChild(el("span", "font-weight:800;min-width:34px", gi ? "" : code));
             var t = g.name + " (" + g.period + " " + g.time + (g.strength && g.strength !== "ev" ? " " + g.strength.toUpperCase() : "") + ")";
             if (g.clip) {
-              var a = el("a", "color:#93b4ff;text-decoration:none;font-weight:600", t);
+              var a = el("a", "color:#93b4ff;text-decoration:none;font-weight:700", t);
               a.href = g.clip; a.target = "_blank"; a.rel = "noopener noreferrer";
               line.appendChild(a);
             } else {
-              line.appendChild(el("span", "color:" + SOFT, t));
+              line.appendChild(el("span", "font-weight:700", t));
             }
+            line.appendChild(el("span", "color:" + SOFT + ";font-weight:500", g.assists && g.assists.length ? "from " + g.assists.join(", ") : "unassisted"));
+            gw.appendChild(line);
           });
-          gw.appendChild(line);
         });
         box.appendChild(gw);
       }
