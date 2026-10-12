@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { nhlJson } from "@/lib/nhl-fetch";
 
 export const runtime = "nodejs";
 
@@ -22,16 +23,11 @@ export function OPTIONS() {
 }
 
 async function fetchSchedule(season: string): Promise<any[]> {
-  const response = await fetch(
+  const data: any = await nhlJson(
     `https://api-web.nhle.com/v1/club-schedule-season/TOR/${season}`,
-    { cache: "no-store" }
+    60
   );
-
-  if (!response.ok) {
-    throw new Error(`Schedule request failed: ${response.status}`);
-  }
-
-  return ((await response.json()) as any).games ?? [];
+  return data.games ?? [];
 }
 
 export async function GET(request: Request) {
@@ -72,32 +68,22 @@ export async function GET(request: Request) {
     }
 
     // Retrieve live information for that game
-    const detailsResponse = await fetch(
+    const game: any = await nhlJson(
       `https://api-web.nhle.com/v1/gamecenter/${latest.id}/landing`,
-      { cache: "no-store" }
+      15
     );
 
-    if (!detailsResponse.ok) {
-      throw new Error(`Game details request failed: ${detailsResponse.status}`);
-    }
-
-    const game: any = await detailsResponse.json();
-
     // Period scoring and team stats live in the right-rail feed (optional)
-    const rail: any = await fetch(
+    const rail: any = await nhlJson(
       `https://api-web.nhle.com/v1/gamecenter/${latest.id}/right-rail`,
-      { cache: "no-store" }
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
+      15
+    ).catch(() => null);
 
     // Goalies who played, from the boxscore (optional; empty before the game starts)
-    const box: any = await fetch(
+    const box: any = await nhlJson(
       `https://api-web.nhle.com/v1/gamecenter/${latest.id}/boxscore`,
-      { cache: "no-store" }
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
+      15
+    ).catch(() => null);
 
     const goalieList = (team: any) =>
       (team?.goalies ?? [])

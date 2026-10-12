@@ -1,3 +1,4 @@
+import { nhlJson } from '@/lib/nhl-fetch';
 import { parseHTML } from 'linkedom';
 
 const NHL_API = 'https://api-web.nhle.com/v1';
@@ -194,10 +195,8 @@ function toGameSummary(
 
 async function getNhlBoxscore(gameId: number, fresh = false): Promise<NhlBoxscore | undefined> {
   try {
-    const response = await fetch(
-      `${NHL_API}/gamecenter/${gameId}/boxscore`,
-      fresh ? { cache: 'no-store' } : { next: { revalidate: 300 } },
-    );
+    if (fresh) return await nhlJson<NhlBoxscore>(`${NHL_API}/gamecenter/${gameId}/boxscore`, 15);
+    const response = await fetch(`${NHL_API}/gamecenter/${gameId}/boxscore`, { next: { revalidate: 300 } });
     return response.ok ? await response.json() as NhlBoxscore : undefined;
   } catch {
     return undefined;
@@ -295,12 +294,13 @@ async function getProjectedLineup(): Promise<ProjectedLineup | undefined> {
 
 export async function getLeafsGamePanel({ fresh = false }: { fresh?: boolean } = {}): Promise<LeafsGamePanelData> {
   const [scheduleResult, projectedLineup] = await Promise.all([
-    fetch(
-      `${NHL_API}/club-schedule-season/TOR/now`,
-      fresh ? { cache: 'no-store' } : { next: { revalidate: 300 } },
-    )
-      .then(async (response) => response.ok ? (await response.json()) as { games?: NhlGame[] } : { games: [] })
-      .catch(() => ({ games: [] as NhlGame[] })),
+    // Live callers get the edge-cached copy (and an error if the NHL API is down and nothing is cached),
+    // so the forum never receives an empty "no games" panel.
+    fresh
+      ? nhlJson<{ games?: NhlGame[] }>(`${NHL_API}/club-schedule-season/TOR/now`, 60)
+      : fetch(`${NHL_API}/club-schedule-season/TOR/now`, { next: { revalidate: 300 } })
+          .then(async (response) => response.ok ? (await response.json()) as { games?: NhlGame[] } : { games: [] })
+          .catch(() => ({ games: [] as NhlGame[] })),
     getProjectedLineup(),
   ]);
 

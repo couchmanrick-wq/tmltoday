@@ -4,9 +4,6 @@ const SCRIPT = `(function () {
   var SITE = "https://tmltoday.com";
   var DISCUSSION = "https://forums.tmltoday.com/forums/2026-2027-leafs-game-day-threads.27/";
   var ODDS = "https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs";
-  var host = document.querySelector(".p-body-inner") || document.querySelector(".p-body");
-  if (!host) return;
-
   var hide = document.createElement("style");
   hide.textContent = ".p-breadcrumbs{display:none!important}" +
     ".p-sectionLinks-list{display:flex!important;align-items:center!important}" +
@@ -341,21 +338,55 @@ const SCRIPT = `(function () {
     });
   }
 
-  function json(u) { return fetch(u).then(function (r) { return r.json(); }).catch(function () { return null; }); }
-  function load() {
+  function json(u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
+  function saved(key, value) {
+    try {
+      if (value === undefined) { var c = JSON.parse(localStorage.getItem(key)); return c; }
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {}
+    return null;
+  }
+
+  // Show the last good data immediately, then refresh; a failed refresh keeps what is on screen.
+  var shown = false;
+  var cached = saved("tml-game-v2");
+  if (cached && cached.game && cached.day === threadDay) {
+    threadGame = cached.thread || null;
+    render(cached.game, cached.latest || null);
+    shown = true;
+  }
+
+  function load(retry) {
     Promise.all([json(SITE + "/api/leafs-game"), json(SITE + "/api/leafs"), threadDay ? json(SITE + "/api/leafs?d=" + threadDay) : null]).then(function (res) {
-      threadGame = res[2] && !res[2].error ? res[2] : null;
-      if (res[0] && !res[0].error) render(res[0], res[1] && !res[1].error ? res[1] : null);
+      var game = res[0], latest = res[1] && !res[1].error ? res[1] : null, thread = res[2] && !res[2].error && res[2].away ? res[2] : null;
+      if (game && !game.error && (game.lastGame || game.nextGame)) {
+        if (thread) threadGame = thread;
+        render(game, latest);
+        shown = true;
+        saved("tml-game-v2", { game: game, latest: latest, thread: threadGame, day: threadDay });
+      } else if (!shown && retry < 3) {
+        setTimeout(function () { load(retry + 1); }, 4000 * (retry + 1));
+      }
     });
   }
-  load();
-  setInterval(load, 30000);
+  load(0);
+  setInterval(function () { load(3); }, 30000);
+
   if (statPanels.length) {
-    var loadStats = function () {
-      json(SITE + "/api/leafs-stats").then(function (d) { renderStats(d); renderGoalies(d); });
+    var cs = saved("tml-stats-v2");
+    if (cs && cs.players && cs.players.length) { renderStats(cs); renderGoalies(cs); }
+    var loadStats = function (retry) {
+      json(SITE + "/api/leafs-stats").then(function (d) {
+        if (d && d.players && d.players.length) {
+          renderStats(d); renderGoalies(d);
+          saved("tml-stats-v2", d);
+        } else if (retry < 3) {
+          setTimeout(function () { loadStats(retry + 1); }, 4000 * (retry + 1));
+        }
+      });
     };
-    loadStats();
-    setInterval(loadStats, 900000);
+    loadStats(0);
+    setInterval(function () { loadStats(3); }, 900000);
   }
 })();
 `;
