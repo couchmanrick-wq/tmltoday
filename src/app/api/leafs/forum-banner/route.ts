@@ -6,6 +6,7 @@ const SCRIPT = `(function () {
   var ODDS = "https://www.covers.com/sport/hockey/nhl/teams/main/toronto-maple-leafs";
   var hide = document.createElement("style");
   hide.textContent = ".p-breadcrumbs{display:none!important}" +
+    ".p-navgroup-link--conversations,.p-navgroup-link--alerts,.p-navgroup-link--conversations:hover,.p-navgroup-link--alerts:hover,.p-navgroup-link--conversations i,.p-navgroup-link--alerts i,.p-navgroup-link--conversations i:before,.p-navgroup-link--alerts i:before,.p-navgroup-link--conversations i:after,.p-navgroup-link--alerts i:after{color:#fff!important;opacity:1!important}" +
     ".p-sectionLinks-list{display:flex!important;align-items:center!important}" +
     ".p-sectionLinks-list>li{display:flex!important;align-items:center!important;align-self:center!important;margin:0!important;padding:0!important}" +
     ".p-sectionLinks-list .p-navEl{display:flex!important;align-items:center!important;margin:0!important;padding:0!important}" +
