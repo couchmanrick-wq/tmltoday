@@ -30,6 +30,23 @@ const SCRIPT = `(function () {
     }
   }
 
+  // Header inbox/alerts links are dark on the dark header; force every nav group link (and its icon) white.
+  var navStyle = document.createElement("style");
+  navStyle.textContent = ".p-navgroup-link,.p-navgroup-link *,.p-navgroup-link i:before,.p-navgroup-link i:after{color:#fff!important;opacity:1!important;visibility:visible!important}";
+  document.head.appendChild(navStyle);
+  function whiten() {
+    var links = document.querySelectorAll(".p-navgroup-link");
+    for (var w = 0; w < links.length; w++) {
+      var all = [links[w]].concat(Array.prototype.slice.call(links[w].querySelectorAll("*")));
+      all.forEach(function (node) {
+        node.style.setProperty("color", "#fff", "important");
+        node.style.setProperty("opacity", "1", "important");
+      });
+    }
+  }
+  whiten();
+  setTimeout(whiten, 1500);
+
   var boxes = [];
   function makeBox(parent, before) {
     var b = document.createElement("div");
