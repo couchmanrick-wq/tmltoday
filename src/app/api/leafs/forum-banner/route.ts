@@ -97,19 +97,61 @@ const SCRIPT = `(function () {
       main.appendChild(team(last.home.abbrev, same ? live.home.name : ""));
       box.appendChild(main);
 
-      var foot = el("div", "display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.12);padding-top:4px;font-size:12px");
-      if (same && live.away.shots != null && live.home.shots != null) {
-        var sog = el("span", "");
-        sog.appendChild(el("span", "color:" + SOFT + ";font-weight:500", "Shots on goal "));
-        sog.appendChild(el("span", "font-weight:800", live.away.shots + " – " + live.home.shots));
-        foot.appendChild(sog);
-      } else {
-        foot.appendChild(el("span", ""));
+      var rule = "border-top:1px solid rgba(255,255,255,.12);padding-top:4px;margin-top:4px;font-size:12px;";
+      if (same && live.periods && live.periods.length) {
+        var pl = live.periods.map(function (p) { return p.label + " " + p.away + "–" + p.home; }).join("  ·  ");
+        box.appendChild(el("div", "text-align:center;font-size:12px;color:" + SOFT, pl + "  (" + live.away.code + "–" + live.home.code + ")"));
       }
-      var links = el("span", "");
-      links.appendChild(link("Box Score", last.boxScoreUrl));
-      if (last.condensedGameUrl) links.appendChild(link("Game Vids", last.condensedGameUrl));
-      foot.appendChild(links);
+      if (same && live.goals && live.goals.length) {
+        var gw = el("div", rule);
+        [live.away.code, live.home.code].forEach(function (code) {
+          var mine = live.goals.filter(function (g) { return g.team === code; });
+          if (!mine.length) return;
+          var line = el("div", "display:flex;flex-wrap:wrap;gap:0 10px;padding:1px 0");
+          line.appendChild(el("span", "font-weight:800;min-width:34px", code));
+          mine.forEach(function (g) {
+            var t = g.name + " (" + g.period + " " + g.time + (g.strength && g.strength !== "ev" ? " " + g.strength.toUpperCase() : "") + ")";
+            if (g.clip) {
+              var a = el("a", "color:#93b4ff;text-decoration:none;font-weight:600", t);
+              a.href = g.clip; a.target = "_blank"; a.rel = "noopener noreferrer";
+              line.appendChild(a);
+            } else {
+              line.appendChild(el("span", "color:" + SOFT, t));
+            }
+          });
+          gw.appendChild(line);
+        });
+        box.appendChild(gw);
+      }
+      if (same) {
+        var parts = [];
+        if (live.away.shots != null && live.home.shots != null) parts.push(["Shots on goal", live.away.shots + " – " + live.home.shots]);
+        var st = live.stats || {};
+        if (st.powerPlay) parts.push(["PP", st.powerPlay.away + " – " + st.powerPlay.home]);
+        if (st.hits) parts.push(["Hits", st.hits.away + " – " + st.hits.home]);
+        if (st.faceoffPct) parts.push(["FO%", st.faceoffPct.away + " – " + st.faceoffPct.home]);
+        if (st.blocks) parts.push(["Blocks", st.blocks.away + " – " + st.blocks.home]);
+        if (parts.length) {
+          var sw = el("div", rule + "display:flex;flex-wrap:wrap;justify-content:center;gap:2px 16px");
+          parts.forEach(function (p) {
+            var c = el("span", "");
+            c.appendChild(el("span", "color:" + SOFT + ";font-weight:500", p[0] + " "));
+            c.appendChild(el("span", "font-weight:800", p[1]));
+            sw.appendChild(c);
+          });
+          box.appendChild(sw);
+        }
+      }
+      var foot = el("div", rule + "display:flex;flex-wrap:wrap;justify-content:center;align-items:center");
+      if (final) {
+        foot.appendChild(link("Box Score", last.boxScoreUrl));
+        if (last.condensedGameUrl) foot.appendChild(link("Game Vids", last.condensedGameUrl));
+      } else {
+        foot.appendChild(link("Live Gamecenter", last.boxScoreUrl));
+        if (last.radioUrl) foot.appendChild(link("Listen Live", last.radioUrl));
+      }
+      if (data.projectedLineup && data.projectedLineup.sourceUrl) foot.appendChild(link("Expected Lines", data.projectedLineup.sourceUrl));
+      foot.firstChild.style.marginLeft = "0";
       box.appendChild(foot);
     }
     box.style.display = last ? "block" : "none";

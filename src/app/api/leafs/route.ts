@@ -59,6 +59,49 @@ export async function GET() {
 
     const game: any = await detailsResponse.json();
 
+    // Period scoring and team stats live in the right-rail feed (optional)
+    const rail: any = await fetch(
+      `https://api-web.nhle.com/v1/gamecenter/${latest.id}/right-rail`,
+      { cache: "no-store" }
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const periodName = (d: any) =>
+      d?.periodType === "SO" ? "SO" : d?.periodType === "OT" ? "OT" : ["", "1st", "2nd", "3rd"][d?.number] ?? "";
+
+    const periods = (rail?.linescore?.byPeriod ?? []).map((p: any) => ({
+      label: periodName(p.periodDescriptor),
+      away: p.away ?? 0,
+      home: p.home ?? 0
+    }));
+
+    const goals = (game.summary?.scoring ?? []).flatMap((p: any) =>
+      (p.goals ?? []).map((g: any) => ({
+        team: g.teamAbbrev?.default ?? g.teamAbbrev,
+        name: g.name?.default ?? "",
+        period: periodName(p.periodDescriptor),
+        time: g.timeInPeriod ?? "",
+        strength: g.strength ?? "ev",
+        clip: g.highlightClipSharingUrl ?? null
+      }))
+    );
+
+    const stat = (category: string) =>
+      (rail?.teamGameStats ?? []).find((t: any) => t.category === category);
+    const pair = (category: string, pct = false) => {
+      const t = stat(category);
+      if (!t) return null;
+      const f = (v: any) => (pct ? Math.round(Number(v) * 100) : v);
+      return { away: f(t.awayValue), home: f(t.homeValue) };
+    };
+    const stats = {
+      powerPlay: pair("powerPlay"),
+      hits: pair("hits"),
+      faceoffPct: pair("faceoffWinningPctg", true),
+      blocks: pair("blockedShots")
+    };
+
     const state = game.gameState;
     const live = ["LIVE", "CRIT"].includes(state);
     const final = ["FINAL", "OFF"].includes(state);
@@ -87,6 +130,9 @@ export async function GET() {
         clock: live
           ? (game.clock?.timeRemaining ?? "")
           : "",
+        periods,
+        goals,
+        stats,
         away: {
           code: game.awayTeam.abbrev,
           name: game.awayTeam.commonName?.default ?? "",
