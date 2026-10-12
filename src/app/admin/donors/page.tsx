@@ -146,7 +146,7 @@ export default async function DonorsPage({
                             {donor.refunded ? (
                               <span className="text-xs text-slate-400">No actions</span>
                             ) : (
-                              <form data-admin-write="true" action="/api/admin/donors" method="post" className="inline">
+                              <form action="/api/admin/donors" method="post" className="inline">
                                 <input type="hidden" name="intent" value="refund" />
                                 <input type="hidden" name="id" value={donor.paymentIntentId} />
                                 <button
@@ -181,7 +181,7 @@ function MonthlyRow({ donor, editing }: { donor: MonthlyDonor; editing: boolean 
           {formatAdminDate(donor.createdIso)}
         </td>
         <td className="px-5 py-3" colSpan={2}>
-          <form data-admin-write="true" action="/api/admin/donors" method="post" className="flex flex-wrap items-center justify-end gap-2">
+          <form action="/api/admin/donors" method="post" className="flex flex-wrap items-center justify-end gap-2">
             <input type="hidden" name="intent" value="update-amount" />
             <input type="hidden" name="id" value={donor.id} />
             <label className="flex items-center gap-1 text-sm font-semibold text-slate-700">
@@ -233,7 +233,7 @@ function MonthlyRow({ donor, editing }: { donor: MonthlyDonor; editing: boolean 
         <span className="text-xs font-normal text-slate-400"> / month</span>
       </td>
       <td className="px-5 py-3 text-right">
-        <div data-admin-write="true" className="inline-flex gap-2">
+        <div className="inline-flex gap-2">
           <a
             href={`/admin/donors?edit=${encodeURIComponent(donor.id)}`}
             className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"

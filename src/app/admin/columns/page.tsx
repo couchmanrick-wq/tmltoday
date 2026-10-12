@@ -42,7 +42,7 @@ export default async function ColumnsPage() {
                     <td className="px-5 py-4 text-sm font-semibold capitalize text-blue-700">{item.topic ?? '—'}</td>
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">{formatAdminDate(item.published_at)}</td>
                     <td className="px-5 py-4">
-                      <Link data-admin-write="true" href={`/admin/content?edit=${item.id}`} className="text-sm font-bold text-blue-700 hover:underline">Edit</Link>
+                      <Link href={`/admin/content?edit=${item.id}`} className="text-sm font-bold text-blue-700 hover:underline">Edit</Link>
                     </td>
                   </tr>
                 ))}

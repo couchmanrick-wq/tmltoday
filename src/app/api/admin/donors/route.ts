@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
-import { ADMIN_COOKIE, canEditAdmin, verifyAdminSession } from '@/lib/admin-auth';
+import { ADMIN_COOKIE, verifyAdminSession } from '@/lib/admin-auth';
 import { formatAmount, parseAmountCents } from '@/lib/donations';
 import { StripeError, cancelSubscription, refundPayment, updateSubscriptionAmount } from '@/lib/stripe';
 
@@ -14,11 +14,9 @@ import { StripeError, cancelSubscription, refundPayment, updateSubscriptionAmoun
  */
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
-  const session = await verifyAdminSession(cookieStore.get(ADMIN_COOKIE)?.value);
-  if (!session) {
+  if (!(await verifyAdminSession(cookieStore.get(ADMIN_COOKIE)?.value))) {
     return NextResponse.redirect(new URL('/admin', request.url), 303);
   }
-  if (!canEditAdmin(session)) return NextResponse.json({ error: 'This account has read-only access.' }, { status: 403 });
 
   const form = await request.formData();
   const intent = String(form.get('intent') ?? '');
