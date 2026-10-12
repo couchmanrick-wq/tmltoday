@@ -42,7 +42,7 @@ export function EmptyState({ children }: { children: React.ReactNode }) {
 
 export function EditItemForm({ item, page }: { item: AdminContentItem; page?: number }) {
   return (
-    <form action="/api/admin/content" method="post" className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-5">
+    <form data-admin-write="true" action="/api/admin/content" method="post" className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-5">
       <input type="hidden" name="id" value={item.id} />
       {page != null && <input type="hidden" name="page" value={page} />}
       <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Title

@@ -7,40 +7,76 @@ type AdminEnv = CloudflareEnv & {
   ADMIN_USERNAME?: string;
   ADMIN_PASSWORD?: string;
   ADMIN_SESSION_SECRET?: string;
+  ADMIN_GUEST_USERNAME?: string;
+  ADMIN_GUEST_PASSWORD?: string;
+  ADMIN_GUEST_PIN?: string;
 };
+
+export type AdminRole = 'admin' | 'viewer';
+
+export interface AdminSession {
+  username: string;
+  role: AdminRole;
+  expiresAt: number;
+}
 
 function getAdminEnv() {
   return getCloudflareContext().env as AdminEnv;
 }
 
-export function validateAdminCredentials(username: string, password: string) {
+export function validateAdminCredentials(username: string, password: string, pin = ''): Omit<AdminSession, 'expiresAt'> | null {
   const env = getAdminEnv();
-  return Boolean(env.ADMIN_USERNAME && env.ADMIN_PASSWORD && username === env.ADMIN_USERNAME && password === env.ADMIN_PASSWORD);
+  if (env.ADMIN_USERNAME && env.ADMIN_PASSWORD && username === env.ADMIN_USERNAME && password === env.ADMIN_PASSWORD) {
+    return { username, role: 'admin' };
+  }
+
+  if (
+    env.ADMIN_GUEST_USERNAME &&
+    env.ADMIN_GUEST_PASSWORD &&
+    env.ADMIN_GUEST_PIN &&
+    username === env.ADMIN_GUEST_USERNAME &&
+    password === env.ADMIN_GUEST_PASSWORD &&
+    pin === env.ADMIN_GUEST_PIN
+  ) {
+    return { username, role: 'viewer' };
+  }
+
+  return null;
 }
 
-export async function createAdminSession(username: string) {
+export async function createAdminSession(identity: Omit<AdminSession, 'expiresAt'>) {
   const secret = getAdminEnv().ADMIN_SESSION_SECRET;
   if (!secret) throw new Error('ADMIN_SESSION_SECRET is not configured');
 
-  const payload = toBase64Url(JSON.stringify({ username, expiresAt: Date.now() + SESSION_LENGTH_SECONDS * 1000 }));
+  const payload = toBase64Url(JSON.stringify({ ...identity, expiresAt: Date.now() + SESSION_LENGTH_SECONDS * 1000 }));
   const signature = await sign(payload, secret);
   return { token: `${payload}.${signature}`, maxAge: SESSION_LENGTH_SECONDS };
 }
 
 export async function verifyAdminSession(token?: string) {
-  if (!token) return false;
+  if (!token) return null;
   const secret = getAdminEnv().ADMIN_SESSION_SECRET;
-  if (!secret) return false;
+  if (!secret) return null;
 
   const [payload, signature] = token.split('.');
-  if (!payload || !signature || (await sign(payload, secret)) !== signature) return false;
+  if (!payload || !signature || (await sign(payload, secret)) !== signature) return null;
 
   try {
-    const data = JSON.parse(fromBase64Url(payload)) as { username?: string; expiresAt?: number };
-    return Boolean(data.username && data.expiresAt && data.expiresAt > Date.now());
+    const data = JSON.parse(fromBase64Url(payload)) as Partial<AdminSession>;
+    if (!data.username || !data.expiresAt || data.expiresAt <= Date.now()) return null;
+
+    // Sessions created before roles were introduced belong to the configured
+    // administrator. This preserves an existing login during deployment.
+    const role = data.role ?? (data.username === getAdminEnv().ADMIN_USERNAME ? 'admin' : undefined);
+    if (role !== 'admin' && role !== 'viewer') return null;
+    return { username: data.username, role, expiresAt: data.expiresAt };
   } catch {
-    return false;
+    return null;
   }
+}
+
+export function canEditAdmin(session: AdminSession | null) {
+  return session?.role === 'admin';
 }
 
 async function sign(value: string, secret: string) {

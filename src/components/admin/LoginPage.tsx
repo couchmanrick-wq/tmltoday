@@ -12,7 +12,7 @@ export function LoginPage() {
         <p className="mt-2 text-sm text-slate-600">Sign in to manage and monitor the aggregator.</p>
         {invalid && (
           <p role="alert" className="mt-5 rounded-md bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            Incorrect username or password.
+            Incorrect username, password, or PIN.
           </p>
         )}
         <form action="/api/admin/login" method="post" className="mt-6 space-y-4">
@@ -23,6 +23,10 @@ export function LoginPage() {
           <label className="block text-sm font-bold text-slate-700">
             Password
             <input name="password" type="password" required autoComplete="current-password" className="mt-1 h-12 w-full rounded-md border border-slate-300 px-3 font-normal outline-none focus:ring-2 focus:ring-blue-300" />
+          </label>
+          <label className="block text-sm font-bold text-slate-700">
+            PIN <span className="font-normal text-slate-400">(guest accounts only)</span>
+            <input name="pin" type="password" inputMode="numeric" autoComplete="one-time-code" className="mt-1 h-12 w-full rounded-md border border-slate-300 px-3 font-normal outline-none focus:ring-2 focus:ring-blue-300" />
           </label>
           <button type="submit" className="h-12 w-full rounded-md bg-brand font-bold text-white hover:bg-blue-800">Sign in</button>
         </form>

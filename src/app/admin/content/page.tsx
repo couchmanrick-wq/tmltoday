@@ -17,7 +17,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       {notice && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{notice}</p>}
 
       {editing && (
-        <section className="rounded-xl border border-blue-200 bg-white p-5 shadow-sm">
+        <section data-admin-write="true" className="rounded-xl border border-blue-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-black text-brand">Editing item</h2>
             <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{editing.content_type}</span>
@@ -57,7 +57,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                   <td className="px-5 py-4 text-sm font-semibold capitalize text-blue-700">{item.topic ?? '—'}</td>
                   <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">{formatAdminDate(item.published_at)}</td>
                   <td className="px-5 py-4">
-                    <div className="flex flex-col gap-2">
+                    <div data-admin-write="true" className="flex flex-col gap-2">
                       <div className="flex items-center gap-3">
                         <Link href={`/admin/content?page=${page}&edit=${item.id}`} className="text-sm font-bold text-blue-700 hover:underline">Edit</Link>
                         <form action="/api/admin/content" method="post">

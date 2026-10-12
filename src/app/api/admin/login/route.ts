@@ -5,12 +5,14 @@ export async function POST(request: NextRequest) {
   const form = await request.formData();
   const username = String(form.get('username') ?? '');
   const password = String(form.get('password') ?? '');
+  const pin = String(form.get('pin') ?? '');
+  const identity = validateAdminCredentials(username, password, pin);
 
-  if (!validateAdminCredentials(username, password)) {
+  if (!identity) {
     return NextResponse.redirect(new URL('/admin?error=invalid', request.url), 303);
   }
 
-  const session = await createAdminSession(username);
+  const session = await createAdminSession(identity);
   const response = NextResponse.redirect(new URL('/admin', request.url), 303);
   response.cookies.set(ADMIN_COOKIE, session.token, {
     httpOnly: true,
