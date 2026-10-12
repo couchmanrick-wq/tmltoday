@@ -33,6 +33,8 @@ const SCRIPT = `(function () {
   // Header inbox/alerts links are dark on the dark header; force every nav group link (and its icon) white.
   var navStyle = document.createElement("style");
   navStyle.textContent = ".p-navgroup-link,.p-navgroup-link *,.p-navgroup-link i:before,.p-navgroup-link i:after{color:#fff!important;opacity:1!important;visibility:visible!important}";
+  navStyle.textContent += "i[data-tml-icon] svg,i[data-tml-icon] svg *{fill:none!important;stroke:#fff!important;stroke-width:1.4!important;stroke-linecap:round!important;stroke-linejoin:round!important}" +
+    "i[data-tml-icon]:before,i[data-tml-icon]:after{content:none!important;display:none!important}";
   document.head.appendChild(navStyle);
   function whiten() {
     var links = document.querySelectorAll(".p-navgroup-link");
@@ -46,8 +48,8 @@ const SCRIPT = `(function () {
   }
   // The theme's inbox/alerts icons do not draw, so replace them with inline outline icons like the gear.
   var ICONS = {
-    conversations: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 7l9 6 9-6'/></svg>",
-    alerts: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M6 16V11a6 6 0 0 1 12 0v5l2 2H4z'/><path d='M10 21a2 2 0 0 0 4 0'/></svg>"
+    conversations: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 7l9 6 9-6'/></svg>",
+    alerts: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><path d='M6 16V11a6 6 0 0 1 12 0v5l2 2H4z'/><path d='M10 21a2 2 0 0 0 4 0'/></svg>"
   };
   function fixIcons() {
     Object.keys(ICONS).forEach(function (name) {
