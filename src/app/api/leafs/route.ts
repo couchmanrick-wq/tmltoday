@@ -91,6 +91,32 @@ export async function GET(request: Request) {
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
 
+    // Goalies who played, from the boxscore (optional; empty before the game starts)
+    const box: any = await fetch(
+      `https://api-web.nhle.com/v1/gamecenter/${latest.id}/boxscore`,
+      { cache: "no-store" }
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const goalieList = (team: any) =>
+      (team?.goalies ?? [])
+        .filter((g: any) => g.toi && g.toi !== "00:00")
+        .map((g: any) => ({
+          name: g.name?.default ?? "",
+          decision: g.decision ?? null,
+          saves: g.saves ?? 0,
+          shotsAgainst: g.shotsAgainst ?? 0,
+          goalsAgainst: g.goalsAgainst ?? 0,
+          savePctg: g.savePctg != null ? g.savePctg.toFixed(3).replace(/^0/, "") : null,
+          toi: g.toi
+        }));
+
+    const goalies = {
+      away: goalieList(box?.playerByGameStats?.awayTeam),
+      home: goalieList(box?.playerByGameStats?.homeTeam)
+    };
+
     const periodName = (d: any) =>
       d?.periodType === "SO" ? "SO" : d?.periodType === "OT" ? "OT" : ["", "1st", "2nd", "3rd"][d?.number] ?? "";
 
@@ -175,6 +201,7 @@ export async function GET(request: Request) {
           : "",
         periods,
         goals,
+        goalies,
         stats,
         away: {
           code: game.awayTeam.abbrev,

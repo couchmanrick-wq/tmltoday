@@ -166,6 +166,19 @@ const SCRIPT = `(function () {
           box.appendChild(sw);
         }
       }
+      if (same && live.goalies && (live.goalies.away.length || live.goalies.home.length)) {
+        var gl = el("div", rule);
+        [[live.away.code, live.goalies.away], [live.home.code, live.goalies.home]].forEach(function (side) {
+          side[1].forEach(function (g, gi) {
+            var line = el("div", "display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;padding:1px 0");
+            line.appendChild(el("span", "font-weight:800;min-width:34px", gi ? "" : side[0]));
+            line.appendChild(el("span", "font-weight:700", g.name + (g.decision ? " (" + g.decision + ")" : "")));
+            line.appendChild(el("span", "color:" + SOFT + ";font-weight:500", g.saves + "/" + g.shotsAgainst + " SV" + (g.savePctg ? " · " + g.savePctg : "") + " · " + g.goalsAgainst + " GA · " + g.toi));
+            gl.appendChild(line);
+          });
+        });
+        box.appendChild(gl);
+      }
       var foot = el("div", rule + "display:flex;flex-wrap:wrap;justify-content:center;align-items:center");
       if (final) {
         foot.appendChild(link("Box Score", last.boxScoreUrl));
