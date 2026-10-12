@@ -1,4 +1,4 @@
-import { getRosterStats, statsSeasonLabel } from '@/lib/leafs-stats';
+import { getGoalieStats, getRosterStats, statsSeasonLabel } from '@/lib/leafs-stats';
 
 const CORS = {
   'Access-Control-Allow-Origin': 'https://forums.tmltoday.com',
@@ -10,10 +10,10 @@ export function OPTIONS() {
 }
 
 export async function GET() {
-  const stats = await getRosterStats(15);
+  const [stats, goalies] = await Promise.all([getRosterStats(15), getGoalieStats()]);
 
   return Response.json(
-    { season: statsSeasonLabel(stats.season), players: stats.players },
+    { season: statsSeasonLabel(stats.season), players: stats.players, goalies },
     { headers: { ...CORS, 'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=900' } },
   );
 }

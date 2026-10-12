@@ -163,7 +163,7 @@ const SCRIPT = `(function () {
     renderSidebar(data);
   }
 
-  var panels = [], statPanels = [];
+  var panels = [], statPanels = [], goaliePanels = [];
   var sidebars = document.querySelectorAll(".p-body-sidebar");
   for (var si = 0; si < sidebars.length; si++) {
     var pnl = document.createElement("div");
@@ -175,6 +175,38 @@ const SCRIPT = `(function () {
     sp.style.cssText = pnl.style.cssText;
     sidebars[si].insertBefore(sp, pnl.nextSibling);
     statPanels.push(sp);
+
+    var gp = document.createElement("div");
+    gp.style.cssText = pnl.style.cssText;
+    sidebars[si].insertBefore(gp, sp.nextSibling);
+    goaliePanels.push(gp);
+  }
+
+  function renderGoalies(data) {
+    var goalies = data && data.goalies;
+    goaliePanels.forEach(function (box) {
+      box.textContent = "";
+      if (!goalies || !goalies.length) { box.style.display = "none"; return; }
+      var head = el("div", "display:flex;justify-content:space-between;align-items:center;padding:6px 0 8px");
+      head.appendChild(el("span", "color:#00205b;font-size:19px;font-weight:800", "Goalie stats"));
+      if (data.season) head.appendChild(el("span", "background:#dbe4f5;color:#00205b;font-size:10px;font-weight:800;border-radius:4px;padding:3px 7px", data.season));
+      box.appendChild(head);
+
+      var cols = "display:grid;grid-template-columns:1fr 22px 22px 22px 40px 38px;gap:0 2px;align-items:center;";
+      var th = el("div", cols + "font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #cbd5e1;padding-bottom:6px");
+      ["Goalie", "GP", "W", "L", "SV%", "GAA"].forEach(function (h, i) { th.appendChild(el("span", i ? "text-align:right" : "", h)); });
+      box.appendChild(th);
+
+      goalies.forEach(function (g) {
+        var r = el("div", cols + "font-size:13px;padding:6px 0;border-bottom:1px solid #e2e8f0");
+        r.appendChild(el("span", "color:#00205b;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", g.name));
+        [g.gamesPlayed, g.wins, g.losses].forEach(function (v) { r.appendChild(el("span", "text-align:right;color:#475569", String(v))); });
+        r.appendChild(el("span", "text-align:right;color:#00205b;font-weight:800", g.savePercentage));
+        r.appendChild(el("span", "text-align:right;color:#475569", g.goalsAgainstAverage));
+        box.appendChild(r);
+      });
+      box.style.display = "block";
+    });
   }
 
   function renderStats(data) {
@@ -282,8 +314,11 @@ const SCRIPT = `(function () {
   load();
   setInterval(load, 30000);
   if (statPanels.length) {
-    json(SITE + "/api/leafs-stats").then(renderStats);
-    setInterval(function () { json(SITE + "/api/leafs-stats").then(renderStats); }, 900000);
+    var loadStats = function () {
+      json(SITE + "/api/leafs-stats").then(function (d) { renderStats(d); renderGoalies(d); });
+    };
+    loadStats();
+    setInterval(loadStats, 900000);
   }
 })();
 `;

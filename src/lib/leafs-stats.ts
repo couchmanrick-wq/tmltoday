@@ -28,6 +28,9 @@ interface NhlSkater {
 
 interface NhlGoalie {
   playerId: number;
+  firstName?: { default?: string };
+  lastName?: { default?: string };
+  overtimeLosses?: number;
   gamesPlayed?: number;
   wins?: number;
   losses?: number;
@@ -121,5 +124,39 @@ export async function getRosterStats(limit = 10): Promise<RosterStats> {
     return { season: data.season ?? 0, players };
   } catch {
     return { season: 0, players: [] };
+  }
+}
+
+export interface GoalieStat {
+  id: number;
+  name: string;
+  gamesPlayed: number;
+  wins: number;
+  losses: number;
+  overtimeLosses: number;
+  savePercentage: string;
+  goalsAgainstAverage: string;
+}
+
+// Goalie season stats, ordered by games played (the starter first), refreshed daily like the skaters.
+export async function getGoalieStats(): Promise<GoalieStat[]> {
+  try {
+    const response = await fetch(`${NHL_API}/club-stats/TOR/now`, { next: { revalidate: 86400 } });
+    if (!response.ok) return [];
+    const data = (await response.json()) as { goalies?: NhlGoalie[] };
+    return (data.goalies ?? [])
+      .map((g) => ({
+        id: g.playerId,
+        name: `${g.firstName?.default ?? ''} ${g.lastName?.default ?? ''}`.trim(),
+        gamesPlayed: g.gamesPlayed ?? 0,
+        wins: g.wins ?? 0,
+        losses: g.losses ?? 0,
+        overtimeLosses: g.overtimeLosses ?? 0,
+        savePercentage: formatSavePctg(g.savePercentage),
+        goalsAgainstAverage: g.goalsAgainstAverage == null ? '—' : g.goalsAgainstAverage.toFixed(2),
+      }))
+      .sort((a, b) => b.gamesPlayed - a.gamesPlayed);
+  } catch {
+    return [];
   }
 }
