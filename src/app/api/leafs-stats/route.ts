@@ -10,7 +10,7 @@ export function OPTIONS() {
 }
 
 export async function GET() {
-  const stats = await getRosterStats(10);
+  const stats = await getRosterStats(15);
 
   return Response.json(
     { season: statsSeasonLabel(stats.season), players: stats.players },
