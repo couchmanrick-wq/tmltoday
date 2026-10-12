@@ -44,8 +44,24 @@ const SCRIPT = `(function () {
       });
     }
   }
-  whiten();
-  setTimeout(whiten, 1500);
+  // The theme's inbox/alerts icons do not draw, so replace them with inline outline icons like the gear.
+  var ICONS = {
+    conversations: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 7l9 6 9-6'/></svg>",
+    alerts: "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='#fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M6 16V11a6 6 0 0 1 12 0v5l2 2H4z'/><path d='M10 21a2 2 0 0 0 4 0'/></svg>"
+  };
+  function fixIcons() {
+    Object.keys(ICONS).forEach(function (name) {
+      var icon = document.querySelector(".p-navgroup-link--" + name + " i");
+      if (!icon || icon.getAttribute("data-tml-icon")) return;
+      icon.innerHTML = ICONS[name];
+      icon.setAttribute("data-tml-icon", "1");
+      icon.style.cssText = "display:inline-flex!important;align-items:center;justify-content:center;width:22px!important;height:22px!important;font-size:0!important;opacity:1!important;visibility:visible!important";
+    });
+  }
+  function fixHeader() { whiten(); fixIcons(); }
+  fixHeader();
+  setTimeout(fixHeader, 1500);
+  setInterval(fixIcons, 5000);
 
   var boxes = [];
   function makeBox(parent, before) {
