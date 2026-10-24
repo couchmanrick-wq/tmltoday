@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { TORONTO_MAPLE_LEAFS } from '@/data/teams';
-import { getAtlanticStandings, NHL_STANDINGS_SOURCE_URL } from '@/lib/nhl-standings';
+import { getAtlanticStandings, standingsSeasonLabel, NHL_STANDINGS_SOURCE_URL } from '@/lib/nhl-standings';
 import { getLeafsSeasonIds, seasonIdToLabel, seasonIdToSlug } from '@/lib/nhl-history';
 import { getLeafsRoster, getStoredProspects, seasonLabel, PROSPECT_AGE_LIMIT, PROSPECT_GP_LIMIT, type RosterPlayer, type LeafProspect } from '@/lib/leafs-prospects';
 import { getStoredDraftPicks, type DraftYear } from '@/lib/leafs-draft';
@@ -44,6 +44,7 @@ export default async function TeamPage() {
     getStoredProspects(),
     getStoredDraftPicks(),
   ]);
+  const standingsSeason = standingsSeasonLabel(standings);
   const leafs = standings.find((team) => team.abbreviation === 'TOR');
   const rosterPlayers = [...roster.players].sort(
     (a, b) => (POSITION_ORDER[a.position] ?? 9) - (POSITION_ORDER[b.position] ?? 9) || (a.number ?? 999) - (b.number ?? 999),
@@ -57,8 +58,8 @@ export default async function TeamPage() {
           <h1 className="text-4xl font-bold text-white sm:text-5xl">{TORONTO_MAPLE_LEAFS.name}</h1>
           <p className="mt-3 max-w-2xl text-blue-100">Toronto, Ontario · Atlantic Division · Established 1917</p>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <TeamMetric label="2025–26 record" value={leafs ? `${leafs.wins}-${leafs.losses}-${leafs.otl}` : '—'} />
-            <TeamMetric label="2025–26 points" value={String(leafs?.points ?? '—')} />
+            <TeamMetric label={`${standingsSeason} record`} value={leafs ? `${leafs.wins}-${leafs.losses}-${leafs.otl}` : '—'} />
+            <TeamMetric label={`${standingsSeason} points`} value={String(leafs?.points ?? '—')} />
             <TeamMetric label="Stanley Cups" value="13" />
             <TeamMetric label="Home" value="Scotiabank Arena" small />
           </div>
@@ -67,7 +68,7 @@ export default async function TeamPage() {
 
       <section>
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div><p className="text-xs font-bold uppercase tracking-widest text-pink-500">2025–26 final</p><h2 className="text-3xl font-bold text-brand">Atlantic Division standings</h2></div>
+          <div><p className="text-xs font-bold uppercase tracking-widest text-pink-500">{standingsSeason} season</p><h2 className="text-3xl font-bold text-brand">Atlantic Division standings</h2></div>
           <a href={NHL_STANDINGS_SOURCE_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-blue-600 hover:text-blue-800">Official NHL source →</a>
         </div>
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">

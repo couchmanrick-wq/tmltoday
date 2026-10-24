@@ -184,7 +184,7 @@ export async function getLeafsRoster(): Promise<LeafsRoster> {
     headshot: p.headshot ?? null,
   }));
 
-  return { season: clubStats?.season ?? 20252026, players };
+  return { season: Number(clubStats?.season) || 20252026, players };
 }
 
 function buildProspect(landing: NhlLanding, currentSeason: number): LeafProspect | null {
@@ -267,7 +267,8 @@ export async function getProspectProfile(id: number): Promise<ProspectProfile | 
   const position = landing.position ?? '—';
   const isGoalie = position === 'G';
   const clubStats = await getJson<{ season?: number }>(`${NHL_API}/club-stats/TOR/now`);
-  const currentSeason = clubStats?.season ?? 20252026;
+  // club-stats returns the season as a string; seasonTotals use numbers, so coerce before comparing
+  const currentSeason = Number(clubStats?.season) || 20252026;
 
   const regularSeason = (landing.seasonTotals ?? []).filter((s) => s.gameTypeId === 2 && s.teamName?.default);
   const nhlGamesPlayed = regularSeason
@@ -328,7 +329,8 @@ export async function computeProspects(): Promise<LeafProspect[]> {
     getJson<RosterGroups>(`${NHL_API}/prospects/TOR`),
     getJson<{ season?: number; skaters?: Array<{ playerId: number; gamesPlayed?: number }>; goalies?: Array<{ playerId: number; gamesPlayed?: number }> }>(`${NHL_API}/club-stats/TOR/now`),
   ]);
-  const currentSeason = clubStats?.season ?? 20252026;
+  // club-stats returns the season as a string; seasonTotals use numbers, so coerce before comparing
+  const currentSeason = Number(clubStats?.season) || 20252026;
 
   const gpById = new Map<number, number>();
   for (const s of clubStats?.skaters ?? []) gpById.set(s.playerId, s.gamesPlayed ?? 0);

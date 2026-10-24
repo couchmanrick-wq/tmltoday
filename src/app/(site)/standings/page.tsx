@@ -1,4 +1,4 @@
-import { getAtlanticStandings, NHL_STANDINGS_SOURCE_URL } from '@/lib/nhl-standings';
+import { getAtlanticStandings, standingsSeasonLabel, NHL_STANDINGS_SOURCE_URL } from '@/lib/nhl-standings';
 
 export const metadata = { alternates: { canonical: '/standings' } };
 
@@ -17,7 +17,7 @@ export default async function StandingsPage() {
       {/* Division Standings */}
       <section>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-2xl font-bold">Atlantic Division (2025-26)</h2>
+          <h2 className="text-2xl font-bold">Atlantic Division ({standingsSeasonLabel(standings)})</h2>
           <a href={NHL_STANDINGS_SOURCE_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800">
             Source: NHL
           </a>
